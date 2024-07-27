@@ -1,345 +1,270 @@
-import { useEffect, useRef, useState } from "react";
-import { Button, Dropdown, Input, Modal, Select, Space, Table } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import Swal from "sweetalert2";
-import { RiLoader3Fill } from "react-icons/ri";
-import Logo from "../../assets/img.png";
-import { FiArrowUpRight, FiSearch } from "react-icons/fi";
-import { MdOutlineDelete, MdPersonOff } from "react-icons/md";
-
-import { IoEyeOutline } from "react-icons/io5";
-import PostRequestModal from "../../Components/Dashboard/PostRequestModal";
-
+import React from "react";
+import { BiLeftArrowCircle } from "react-icons/bi";
+import house from "../../assets/house.png";
+import { RiEdgeNewFill } from "react-icons/ri";
+import { MdOutlinePets } from "react-icons/md";
+import { TbAirConditioningDisabled } from "react-icons/tb";
+import { AiOutlineWifi } from "react-icons/ai";
+import { FaFireAlt } from "react-icons/fa";
+import { Link } from "react-router-dom";
 const data = [
   {
-    key: "#1239",
-
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Corona, Michigan",
+    title: "Move on :",
+    value: "Instant",
   },
   {
-    key: "#1238",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Great Falls, Maryland ",
+    title: "Gender :",
+    value: "Male/Female",
   },
   {
-    key: "#1237",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Syracuse, Connecticut ",
+    title: "Guest type :",
+    value: " Single",
   },
   {
-    key: "#1236",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Lafayette, California",
-  },
-  {
-    key: "#1235",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Pasadena, Oklahoma",
-  },
-  {
-    key: "#1234",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Lansing, Illinois",
-  },
-  {
-    key: "#1233",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    properties: {
-      name: "Two Bedroom Apartment for rent...",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    owner: "mithila",
-    rent: "$640",
-    date: "9 Dec 2024",
-    location: "Coppell, Virginia",
+    title: "Occupation :",
+    value: "Student",
   },
 ];
 
+const facilities = [
+  {
+    icon: (
+      <p>
+        <RiEdgeNewFill size={20} />
+      </p>
+    ),
+    title: "Newest",
+  },
+  {
+    icon: (
+      <p>
+        <AiOutlineWifi size={20} />
+      </p>
+    ),
+    title: "Wi-Fi",
+  },
+  {
+    icon: (
+      <p>
+        <MdOutlinePets size={20} />
+      </p>
+    ),
+    title: "Pet allowed",
+  },
+  {
+    icon: (
+      <p>
+        <FaFireAlt size={20} />
+      </p>
+    ),
+    title: "Heating",
+  },
+  {
+    icon: (
+      <p>
+        <TbAirConditioningDisabled size={20} />
+      </p>
+    ),
+    title: "AC",
+  },
+  {
+    icon: (
+      <p>
+        <AiOutlineWifi size={20} />
+      </p>
+    ),
+    title: "Wi-Fi",
+  },
+  {
+    icon: (
+      <p>
+        <MdOutlinePets size={20} />
+      </p>
+    ),
+    title: "Pet allowed",
+  },
+  {
+    icon: (
+      <p>
+        <FaFireAlt size={20} />
+      </p>
+    ),
+    title: "Heating",
+  },
+];
 const Properties = () => {
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
-  const [open, setOpen] = useState(false);
-
-  const dropdownRef = useRef();
-
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-        });
-      }
-    });
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDate(false);
-        setOpen("");
-        setFilter(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
-
-  const columns = [
-    {
-      title: "S.No",
-      dataIndex: "key",
-      key: "key",
-    },
-    {
-      title: "Properties Title",
-      dataIndex: "properties",
-      key: "properties",
-      render: (properties) => {
-        return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <p> {properties?.img} </p>
-
-            <p
-              style={{
-                letterSpacing: 0.4,
-                fontSize: "#666666",
-                fontWeight: "400",
-              }}
-            >
-              {properties?.name}
-            </p>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Properties Owner",
-      dataIndex: "owner",
-      key: "owner",
-    },
-
-    {
-      title: "Rent Per Week",
-      dataIndex: "rent",
-      key: "rent",
-    },
-
-    {
-      title: "Location",
-      dataIndex: "location",
-      key: "location",
-    },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-    },
-
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, record) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-
-            paddingRight: 10,
-          }}
-        >
-          <button
-            onClick={() => setOpen(true)}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              outline: "none",
-            }}
-          >
-            <IoEyeOutline size={22} className="" />
-          </button>
-
-          <div>
-            <button onClick={() => handleDelete(record?.key)}>
-              <MdOutlineDelete size={25} className=" text-red-500" />
-            </button>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
-
   return (
-    <div className="">
-      <div
-        style={{
-          padding: "10px",
-          borderRadius: "12px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            margin: "16px 0",
-          }}
-        >
-          <div>
-            <h3
-              style={{
-                color: "#00809E",
-                fontSize: 24,
-                fontWeight: "500",
-              }}
-            >
-              Properties
-            </h3>
+    <div>
+      <Link to="/post-request">
+        {" "}
+        <button className="flex items-center gap-2 ">
+          {" "}
+          <span>
+            {" "}
+            <BiLeftArrowCircle size={22} />{" "}
+          </span>{" "}
+          <span> Back</span>
+        </button>
+      </Link>
+
+      <div className=" py-8">
+        <div className="py-5 mx-auto text-center">
+          <img className="w-72 h-40  mx-auto mb-2" src={house} alt="" />
+          <p className="text-2xl font-semibold py-1">
+            Looking for a room in Sydney
+          </p>
+          <p className="text-lg font-semibold text-[#00809E]">$250/PW </p>
+        </div>
+
+        <div className=" w-full flex justify-center items-center">
+          <div className=" w-2/3">
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Owner Name
+              </p>
+              <p
+                className="text-[14px] w-1/2 
+                 text-[#737373]"
+              >
+                Mithila
+              </p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Contact No
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">98709870984</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                About
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">
+                amet, ex Ut adipiscing sodales. massa placerat. Sed eget
+                fringilla gravida nisi Donec eu eu tempor nulla, nulla, leo.
+                faucibus tortor. Donec libero, elementum tincidunt id tincidunt
+                dui faucibus turpis consectetur amet, nibh luctus nibh lacus, ex
+                hendrerit fringilla fringilla est. lacus Nunc tincidunt
+                dignissim, id nec Lorem dui Sed nibh id elementum non tincidunt
+              </p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Address
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">
+                6391 Elgin St. Celina, Delaware 10299
+              </p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Size
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">400/sf</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Bathrooms
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">2</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Bathrooms
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Kitchen
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Balcony
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Bed Type
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">Sofa Bed</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Decorated
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">Furnished</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Property Type
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">Apartment</p>
+            </div>
+
+            <div className="flex items-center  justify-center w-full gap-10 mb-3">
+              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
+                Balcony
+              </p>
+              <p className="text-[14px] w-1/2  text-[#737373]">2</p>
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <p></p>
+        </div>
+
+        <div className=" flex items-center  gap-16 justify-center my-3 mb-5">
+          {data.map((value, index) => (
             <div
-              style={{
-                width: "370px",
-                height: "40px",
-                borderRadius: "8px",
-              }}
+              key={index}
+              className="flex items-center gap-1 text-[16px] font-medium"
             >
-              <Input
-                placeholder="Search..."
-                prefix={<FiSearch size={14} color="#868FA0" />}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  fontSize: "14px",
-                }}
-                size="middle"
-              />
+              {" "}
+              <p className="text-[#5C5C5C]"> {value.title} </p>{" "}
+              <p className="text-[#00B047]"> {value?.value} </p>{" "}
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-center">
+          <div>
+            <h1 className="text-2xl font-semibold py-2 "> Facilities</h1>
+            <div className=" flex items-center justify-center  gap-8">
+              {facilities.map((value, index) => (
+                <button
+                  key={index}
+                  className=" flex items-center gap-2 bg-[#FFDFD4] text-black w-[150px] h-[40px]  px-3  rounded-lg font-semibold"
+                >
+                  {" "}
+                  <span> {value?.icon}</span> <span> {value?.title}</span>{" "}
+                </button>
+              ))}
             </div>
           </div>
         </div>
-        <div>
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={{
-              pageSize: 10,
-              defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 85,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              // defaultCurrent: 1,
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-                // gap: 10,
-                // justifyContent: "space-between",
-              },
-            }}
-          />
+
+        <div className=" flex items-center justify-center gap-6 mt-8">
+          <button className=" bg-[#80C738] text-white w-[90px] h-[40px] rounded-lg ">
+            Approve{" "}
+          </button>
+
+          <button className=" bg-[#DF3232] text-white w-[90px] h-[40px] rounded-lg ">
+            Reject{" "}
+          </button>
         </div>
       </div>
-      <PostRequestModal open={open} setOpen={setOpen} />
     </div>
   );
 };

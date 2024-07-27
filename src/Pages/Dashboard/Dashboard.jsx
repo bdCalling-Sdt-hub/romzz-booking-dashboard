@@ -49,11 +49,7 @@ const Dashboard = () => {
       path: "/users",
       icon: <FiUsers size={24} />,
     },
-    {
-      title: "Properties",
-      path: "/properties",
-      icon: <BiBuildings size={24} />,
-    },
+
     {
       title: "Reservations",
       path: "/reservations",
@@ -238,19 +234,19 @@ const Dashboard = () => {
                           }}
                         >
                           <Link
-                            className="mx-auto"
+                            // className="mx-auto"
                             to={optionItem.path}
                             style={{
                               display: "flex",
 
                               color: "Black",
                               alignItems: "flex-end",
-
+                              marginLeft: "15px",
                               // borderRadius: "100px 0px 0px 100px",
                             }}
                           >
                             <div
-                              className="text-center"
+                              // className="text-center"
                               style={{
                                 fontSize: "13px",
 

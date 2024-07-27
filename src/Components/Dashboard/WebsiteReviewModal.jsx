@@ -33,7 +33,9 @@ const WebsiteReviewModal = ({ open, setOpen, getReview }) => {
               <Rate disabled defaultValue={getReview?.rating} />{" "}
             </p>
 
-            <p className="text-[16px] font-semibold text-black py-1">Name:</p>
+            <p className="text-[16px] font-semibold text-black py-1">
+              Reviews:
+            </p>
             <p className="text-[#A1A1A1] text-[16px] ">{getReview?.reviews}</p>
           </div>
         </div>

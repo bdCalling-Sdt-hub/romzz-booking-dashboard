@@ -16,19 +16,19 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f5ecda;
+  background: #d9eceb;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
   /* background: #6b5ecc34;  */
-  background: #f0d9aa;
+  background: #d9eceb;
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #eee9de;
+  background: #d9eceb;
 }
 
 .ant-table-thead .ant-table-cell {
@@ -139,11 +139,11 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
 }
 
 /* side layout bg color  */
-:where(.css-dev-only-do-not-override-djtmh8).ant-layout .ant-layout-sider {
+.ant-layout .ant-layout-sider {
   background: white !important;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-table-wrapper
+.ant-table-wrapper
   .ant-table-tbody
   .ant-table-row.ant-table-row-selected
   > .ant-table-cell {
@@ -157,25 +157,23 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
   border-radius: 10px;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-tabs .ant-tabs-tab {
+.ant-tabs .ant-tabs-tab {
   color: black;
   padding: 8px;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-tabs
-  .ant-tabs-tab.ant-tabs-tab-active
-  .ant-tabs-tab-btn {
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: white;
   background: #00809e;
   border-radius: 10px;
   padding: 8px;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-tabs .ant-tabs-ink-bar {
+.ant-tabs .ant-tabs-ink-bar {
   background: none;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-tabs .ant-tabs-tab:hover {
+.ant-tabs .ant-tabs-tab:hover {
   color: black !important;
 }
 
@@ -183,7 +181,7 @@ div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
   position: static;
 }
 
-:where(.css-dev-only-do-not-override-djtmh8).ant-btn-primary {
+.ant-btn-primary {
   background: #00809e !important ;
 }
 

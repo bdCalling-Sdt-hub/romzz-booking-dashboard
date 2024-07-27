@@ -4,8 +4,8 @@ import Swal from "sweetalert2";
 import Logo from "../../assets/img.png";
 import { FiSearch } from "react-icons/fi";
 import { MdOutlineDelete } from "react-icons/md";
-import PostRequestModal from "../../Components/Dashboard/PostRequestModal";
 import { IoEyeOutline } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const data = [
   {
@@ -352,16 +352,17 @@ const PostRequest = () => {
             paddingRight: 10,
           }}
         >
-          <button
-            onClick={() => setOpen(true)}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              outline: "none",
-            }}
-          >
-            <IoEyeOutline size={22} className="" />
-          </button>
+          <Link to="/properties">
+            <button
+              style={{
+                cursor: "pointer",
+                border: "none",
+                outline: "none",
+              }}
+            >
+              <IoEyeOutline size={22} className="" />
+            </button>{" "}
+          </Link>
 
           <div>
             <button onClick={() => handleDelete(record?.key)}>
@@ -434,13 +435,12 @@ const PostRequest = () => {
             dataSource={data}
             pagination={{
               pageSize: 10,
-              defaultCurrent: parseInt(page),
+              // defaultCurrent: parseInt(page),
               onChange: handlePageChange,
-              total: 85,
+              total: 15,
               showTotal: (total, range) =>
                 `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              // defaultCurrent: 1,
+
               style: {
                 marginBottom: 20,
                 marginLeft: 20,
@@ -454,7 +454,6 @@ const PostRequest = () => {
           />
         </div>
       </div>
-      <PostRequestModal open={open} setOpen={setOpen} />
     </div>
   );
 };

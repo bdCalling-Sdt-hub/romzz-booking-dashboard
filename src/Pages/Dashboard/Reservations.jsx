@@ -312,7 +312,7 @@ const Reservations = () => {
               pageSize: 10,
               defaultCurrent: parseInt(page),
               onChange: handlePageChange,
-              total: 85,
+              total: 15,
               showTotal: (total, range) =>
                 `Showing ${range[0]}-${range[1]} out of ${total}`,
               defaultPageSize: 20,

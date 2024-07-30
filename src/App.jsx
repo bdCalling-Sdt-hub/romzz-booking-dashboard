@@ -28,6 +28,7 @@ import SocialMedia from "./Pages/Dashboard/Settings/SocialMedia";
 import News from "./Pages/Dashboard/Settings/News";
 import WebsiteReview from "./Pages/Dashboard/Settings/WebsiteReview";
 import Support from "./Pages/Dashboard/Support";
+import Facilities from "./Pages/Dashboard/Settings/Facilities";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
               <Route path="/social-media" element={<SocialMedia />} />
               <Route path="/edit-slider" element={<EditSlider />} />
               <Route path="/feedback" element={<Feedback />} />
+              <Route path="/facilities" element={<Facilities />} />
               <Route path="/news" element={<News />} />
               <Route path="/website-review" element={<WebsiteReview />} />
             </Route>

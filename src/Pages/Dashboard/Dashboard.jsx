@@ -7,6 +7,7 @@ import {
   FaBuildingUser,
   FaHouseMedical,
   FaRegAddressCard,
+  FaRegNewspaper,
 } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
 import { MdOutlineDashboard, MdOutlineSupportAgent } from "react-icons/md";
@@ -70,6 +71,11 @@ const Dashboard = () => {
       path: "/support",
       icon: <MdOutlineSupportAgent size={24} />,
     },
+    {
+      title: "News",
+      path: "/news",
+      icon: <FaRegNewspaper size={24} />,
+    },
 
     {
       title: "Add admin",
@@ -100,8 +106,8 @@ const Dashboard = () => {
           path: "/faq",
         },
         {
-          title: "News",
-          path: "/news",
+          title: "Facilities",
+          path: "/facilities",
         },
         {
           title: "Website Review",

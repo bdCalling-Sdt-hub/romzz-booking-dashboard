@@ -1,20 +1,16 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
-import JoditEditor from "jodit-react";
-import Swal from "sweetalert2";
+import React, { useState } from "react";
+
+import { Form, Input } from "antd";
+import { FaRegImage } from "react-icons/fa";
 
 const OurStory = () => {
-  const editor = useRef(null);
-  const [content, setContent] = useState("");
-  const [isLoading, seLoading] = useState(false);
+  const [imgFile, setImgFile] = useState(null);
 
-  const config = {
-    readonly: false,
-    placeholder: "Start typings...",
-    style: {
-      height: 400,
-      background: "#FDFDFD",
-    },
+  const handleChange = (e) => {
+    const file = e.target.files[0];
+    setImgFile(file);
   };
+
   return (
     <div className="  px-4 py-2 rounded-lg pb-10 ">
       <div
@@ -38,16 +34,68 @@ const OurStory = () => {
         </div>
         <div></div>
       </div>
+      {/* input feild  */}
       <div>
-        <JoditEditor
-          ref={editor}
-          value={content}
-          config={config}
-          tabIndex={1}
-          onBlur={(newContent) => setContent(newContent)}
-          onChange={(newContent) => {}}
-        />
+        <Form layout="vertical" className=" ">
+          <Form.Item
+            className="w-full"
+            name="Heading"
+            label={
+              <p className="text-lg font-semibold text-[#6D6D6D] ">Heading</p>
+            }
+          >
+            <Input className="w-2/3 h-[40px]" />
+          </Form.Item>
+
+          <Form.Item
+            className="w-full"
+            name="discription"
+            label={
+              <p className="text-lg font-semibold text-[#6D6D6D] ">
+                Discription
+              </p>
+            }
+          >
+            <Input.TextArea rows={4} className="resize-none w-2/3 h-[40px]" />
+          </Form.Item>
+
+          <div className=" w-2/3 mb-5 ">
+            <p className="text-lg font-semibold text-[#6D6D6D] pb-2 "> Image</p>
+            <div className="bg-white rounded-xl border">
+              <label
+                htmlFor="image"
+                style={{ display: "block", margin: "4px 0" }}
+                className="p-3 "
+              >
+                <Form.Item name="image">
+                  <div className=" flex items-center justify-center">
+                    {imgFile ? (
+                      <img src={URL.createObjectURL(imgFile)} alt="" />
+                    ) : (
+                      <FaRegImage className=" text-9xl" />
+                    )}
+                  </div>
+                  <div className=" hidden">
+                    <Input
+                      id="image"
+                      type="file"
+                      onInput={handleChange}
+                      style={{
+                        border: "1px solid #E0E4EC",
+                        height: "52px",
+                        background: "white",
+                        borderRadius: "8px",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+                </Form.Item>
+              </label>
+            </div>
+          </div>
+        </Form>
       </div>
+
       <div
         style={{
           marginTop: 24,

@@ -1,44 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { CiEdit } from "react-icons/ci";
-import { FaRegImage, FaRegTrashAlt } from "react-icons/fa";
-import { Button, Form, Input, Modal, Select, Table } from "antd";
+import {  FaRegTrashAlt } from "react-icons/fa";
+import { Button, Table } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
-import sliderImg from "../../../assets/sliderImg.png";
 import SliderModal from "../../../Components/Dashboard/SliderModal";
-
-const data = [
-  {
-    key: 1,
-    name: "Worldview",
-    slider_image: <img src={sliderImg} height={140} width={140} />,
-  },
-  {
-    key: 2,
-    name: "Champs-Élysées 246",
-    slider_image: <img src={sliderImg} height={140} width={140} />,
-  },
-  {
-    key: 3,
-    name: "Way of Life",
-    slider_image: <img src={sliderImg} height={140} width={140} />,
-  },
-  {
-    key: 4,
-    name: "Champs-Élysées 246",
-    slider_image: <img src={sliderImg} height={140} width={140} />,
-  },
-];
+import { useDeleteSliderMutation, useGetSliderQuery } from "../../../redux/apislices/DashboardSlices";
+import { imageUrl } from "../../../redux/api/apiSlice";
 
 const EditSlider = () => {
   const [openAddModel, setOpenAddModel] = useState(false);
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
-
   const [itemForEdit, setItemForEdit] = useState(null);
+  const [page, setPage] = useState(1); 
+  const {data:sliders ,refetch} = useGetSliderQuery(page) 
+  console.log(sliders?.data);   
+  const [deleteSlider] = useDeleteSliderMutation()
 
-  const handleDelete = (id) => {
+  const data =sliders?.data?.map((value , index) =>({
+    key: index+1, 
+    id:value?._id ,
+    name: value?.title,
+    slider_image:value?.image?.startsWith("https") ? value?.image : `${imageUrl}${value?.image}`    ,
+  }))
+
+
+  const handleDelete = async(id) => { 
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -47,15 +33,29 @@ const EditSlider = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        await deleteSlider(id).then((res) => {console.log(res) 
+if(res?.data?.success){
+  Swal.fire({
+    text: res?.data?.message,
+    icon: "success",
+    showConfirmButton: false,
+    timer: 1500,
+  }).then(() => {
+    refetch();
+  });
+}else {
+  Swal.fire({
+    title: "Oops",
+    text: res?.error?.data?.message,
+    icon: "error",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+}
+
+        })
       }
     });
   };
@@ -80,8 +80,8 @@ const EditSlider = () => {
               alignItems: "center",
               gap: 12,
             }}
-          >
-            <p> {img} </p>
+          > 
+          <img src={img} height={140} width={140} />
           </div>
         );
       },
@@ -121,7 +121,7 @@ const EditSlider = () => {
             <CiEdit size={25} />
           </button>
           <button
-            onClick={() => handleDelete()}
+            onClick={() => handleDelete(record?.id)}
             style={{
               cursor: "pointer",
               border: "none",
@@ -196,30 +196,20 @@ const EditSlider = () => {
             pagination={{
               pageSize: 10,
               defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              //   defaultCurrent: 1,
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-                // gap: 10,
-                // justifyContent: "space-between",
-              },
+              onChange: (page)=>setPage(page) ,
+              total: sliders?.data?.meta?.total,
+             
             }}
           />
         </div>
       </div>
 
       <SliderModal
-        itemForEdit={itemForEdit}
+        itemForEdit={itemForEdit} 
+        setItemForEdit={setItemForEdit}
         setOpenAddModel={setOpenAddModel}
-        openAddModel={openAddModel}
+        openAddModel={openAddModel} 
+        refetch={refetch}
       />
     </div>
   );

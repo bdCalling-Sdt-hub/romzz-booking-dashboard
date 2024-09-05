@@ -1,12 +1,52 @@
 import { Button, Checkbox, Form, Input } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-const Login = () => {
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+
+import { setToLocalStorage } from "../../Util/local-storage";
+import Swal from "sweetalert2";
+import { useLoginMutation } from "../../redux/apislices/AuthSlices";
+const Login = () => { 
+  const [login , {isSuccess , isError, error ,data}] = useLoginMutation()   
+  console.log(data);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isSuccess) {
+      // console.log("you login successfully");
+      if (data) {
+        Swal.fire({
+          title: "Login Successful",
+          text: "Welcome to Admin Dashboard",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          setToLocalStorage("bookingToken", data?.data?.accessToken);  
+
+          navigate("/");  
+          window.location.reload();
+        });
+      }
+
+    }
+    if (isError) {
+      Swal.fire({
+        title: "Failed to Login",
+        text: error?.data?.message,  
+        icon: "error",
+      });
+    }
+  }, [isSuccess, isError, error, data, navigate]); 
+
+  const onFinish = async(values) => {
+    console.log("Received values of form: ", values); 
+
+    await login(values).then((res)=>{
+      console.log(res);
+    })
   };
 
-  const navigate = useNavigate();
+
 
   return (
     <div
@@ -137,7 +177,7 @@ const Login = () => {
 
         <Form.Item style={{ marginBottom: 0 }}>
           <Button
-            onClick={() => navigate("/")}
+            // onClick={() => navigate("/")} 
             type="primary"
             htmlType="submit"
             className="login-form-button"

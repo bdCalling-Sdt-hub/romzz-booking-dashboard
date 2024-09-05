@@ -1,11 +1,50 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import JoditEditor from "jodit-react";
 import Swal from "sweetalert2";
+import { useGetTermsQuery, useUpdateTermsMutation } from "../../../redux/apislices/DashboardSlices";
 
 const Terms = () => {
-  const editor = useRef(null);
+  const editor = useRef(null); 
+  const {data:terms , refetch} = useGetTermsQuery()  
+  const [updateTerms] = useUpdateTermsMutation()
+  // console.log(terms?.data[0]);  
+  const termsContents = terms?.data[0]
   const [content, setContent] = useState("");
-  const [isLoading, seLoading] = useState(false);
+  const [isLoading, seLoading] = useState(false); 
+
+  useEffect(()=>{ 
+    setContent(termsContents?.termsContent)
+  },[termsContents]) 
+
+  const handleSubmit =async()=>{
+ const data = {
+  createdBy: termsContents?._id ,
+  termsContent:content
+ } 
+ await updateTerms(data).then((res)=>{
+  console.log(res); 
+  if(res?.data?.success){
+    Swal.fire({
+        text:res?.data?.message,
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        refetch(); 
+        
+      })
+}else{
+    Swal.fire({
+        title: "Oops",
+        text: res?.error?.data?.message,
+        icon: "error",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+  
+}
+ })
+  }
 
   const config = {
     readonly: false,
@@ -56,7 +95,7 @@ const Terms = () => {
           alignItems: "center",
         }}
       >
-        <button
+        <button onClick={()=>handleSubmit()}
           style={{
             height: 44,
             width: 150,

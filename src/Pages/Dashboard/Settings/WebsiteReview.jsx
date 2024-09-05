@@ -1,69 +1,74 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import { Rate, Select, Switch, Table } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { ConfigProvider, Rate,  Switch, Table } from "antd";
+
 import Swal from "sweetalert2";
 
-import userImg from "../../../assets/user.png";
-import ViewNewsModal from "../../../Components/Dashboard/ViewNewsModal";
 import { FaEye } from "react-icons/fa6";
-import { render } from "react-dom";
 import WebsiteReviewModal from "../../../Components/Dashboard/WebsiteReviewModal";
+import { useGetFeedbackQuery, useUpdateStatusMutation } from "../../../redux/apislices/DashboardSlices";
+import { imageUrl } from "../../../redux/api/apiSlice";
 
-const data = [
-  {
-    key: 1,
-    name: "mithila",
-    date: "09 Dec 2024",
-    image: (
-      <img src={userImg} height={40} width={40} className="rounded-full" />
-    ),
-    reviews: "Literally I didn't expect but the facilities...",
-    rating: 3,
-  },
-
-  {
-    key: 2,
-    name: "Asad",
-    date: "09 Dec 2024",
-    image: (
-      <img src={userImg} height={40} width={40} className="rounded-full" />
-    ),
-    reviews: "Literally I didn't expect but the facilities...",
-    rating: 3.5,
-  },
-  {
-    key: 3,
-    name: "Nadir",
-    date: "09 Dec 2024",
-    image: (
-      <img src={userImg} height={40} width={40} className="rounded-full" />
-    ),
-    reviews: "Literally I didn't expect but the facilities...",
-    rating: 4,
-  },
-];
 
 const WebsiteReview = () => {
-  const [openAddModel, setOpenAddModel] = useState(false);
   const [getReview, setGetReview] = useState(null);
   const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
+  const [page, setPage] = useState(1); 
+  const {data:feedbacks , refetch} = useGetFeedbackQuery(page) 
+  const [updateStatus] = useUpdateStatusMutation()
+console.log(feedbacks);  
+  const [userStatus, setUserStatus] = useState(null);  
+  // console.log(userStatus); 
 
-  const [userStatus, setUserStatus] = useState(null);
+  const data  = feedbacks?.data?.result?.map((value , index)=>({
+    key: index+1 , 
+    id: value?._id ,
+    name: value?.userId?.fullName,
+    image:value?.userId?.avatar.startsWith("https") ?  value?.userId?.avatar : `${imageUrl}${value?.userId?.avatar}`   ,
+    reviews: value?.feedback ,
+    rating: value?.rating , 
+    status:value?.visibilityStatus
+  }))
 
-  const onChange = (checked, id) => {
-    console.log(`${checked} ${id}`);
-    setUserStatus(checked);
+  const handleChangeStatus = async(checked , record) => {
+    setUserStatus(checked); 
+    const newStatus  = record?.status === "hide" ? "show" : "hide"
+    const id  = record?.id   
+    const value ={
+      id:id ,
+      visibilityStatus:newStatus
+    }
+    console.log(newStatus);    
+    await updateStatus(value).then((res)=>{console.log(res) 
+      if(res?.data?.success){
+        Swal.fire({
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(()=> 
+            refetch()
+          )
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    }
+    })
+
   };
 
   const columns = [
     {
       title: "S.No",
       dataIndex: "key",
-      key: "key",
+      key: "key", 
+      render:(key)=><p>{((page-1)*10)+key}</p>
     },
     {
       title: "Name",
@@ -75,12 +80,12 @@ const WebsiteReview = () => {
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              alignItems: "center", 
+              justifyContent:"center" ,
               gap: 12,
             }}
-          >
-            <p> {img} </p>
+          > 
+            <img src={img} height={40} width={40} className="rounded-full" />
             <p>{record?.name}</p>
           </div>
         );
@@ -97,7 +102,8 @@ const WebsiteReview = () => {
       title: "Reviews",
       dataIndex: "reviews",
       key: "reviews",
-      align: "center",
+      align: "center", 
+      render:(reviews) => <p>{reviews.slice(0,15)}...</p>
     },
     {
       title: "Action",
@@ -126,38 +132,31 @@ const WebsiteReview = () => {
       dataIndex: "status",
       key: "status",
       align: "center",
-      render: (record) => (
-        <div className="flex items-center gap-1">
+      render: (_, record) => (
+        <div className="flex items-center justify-center gap-1"> 
+        <ConfigProvider
+  theme={{ 
+    components:{
+      handleBg:"#D9D9D9"
+    } ,
+    token: { 
+      colorPrimary:"#00809E"
+    },
+  }}
+>
           <Switch
-            defaultChecked
-            checked={record?.key}
-            onClick={(checked) => {
-              onChange(checked, record?.key);
-            }}
+            defaultChecked={record.status === "show"}
+         
+            onClick={(checked) => handleChangeStatus(checked, record)}
           />
-          {/* <p>{userStatus === true ? "Active" : "Hide"}</p>  */}
+</ConfigProvider> 
+          <p>{record.status === "show" ? <p className=" text-[#00809E] font-medium">Active </p>  : <p className="text-[#5C5C5C] font-medium"> Hide</p> }</p> 
         </div>
       ),
     },
   ];
 
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
 
-  const items = [
-    {
-      value: "Guest",
-      label: "Guest",
-    },
-    {
-      value: "Host",
-      label: "Host",
-    },
-  ];
   return (
     <div>
       <div
@@ -185,17 +184,6 @@ const WebsiteReview = () => {
               Website Review
             </h3>
           </div>
-          <div>
-            <Select
-              placeholder="Guest"
-              style={{
-                width: 150,
-                height: 40,
-              }}
-              //   onChange={handleChange}
-              options={items}
-            />
-          </div>
         </div>
         <div>
           <Table
@@ -203,20 +191,10 @@ const WebsiteReview = () => {
             style={{}}
             dataSource={data}
             pagination={{
-              pageSize: 10,
               defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-              },
+              onChange: (page)=>setPage(page),
+              total: feedbacks?.data?.meta?.total,
+            
             }}
           />
         </div>

@@ -1,22 +1,98 @@
 import { Button, Form, Input, Modal, Select } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegImage } from "react-icons/fa";
+import { useCreateSliderMutation, useUpdateSliderMutation } from "../../redux/apislices/DashboardSlices";
+import Swal from "sweetalert2";
 
-const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel }) => {
-  const [imgFile, setImgFile] = useState(null);
-  const [category, setCategory] = useState(null);
-  console.log(category);
+const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel  ,refetch , setItemForEdit}) => { 
+  console.log(itemForEdit);
+  const [imgFile, setImgFile] = useState(""); 
+  const [imgURl , setImgUrl] = useState(null) 
+  const [form] =  Form.useForm()
+
+  const [createSlider] = useCreateSliderMutation() 
+  const [updateSlider] = useUpdateSliderMutation()
+ 
+  useEffect(()=>{
+
+    if(itemForEdit){
+      form.setFieldsValue({title:itemForEdit?.name}) 
+      setImgUrl(itemForEdit?.slider_image)
+    }
+  } ,[itemForEdit])
+
   const handleChange = (e) => {
     const file = e.target.files[0];
-    setImgFile(file);
+    setImgFile(file); 
+    setImgUrl(URL.createObjectURL(file))
   };
-  const onFinish = (values) => {
-    console.log(values);
+  const onFinish = async(values) => {
+    console.log(values); 
+    const formData  = new FormData()  
+    if(imgFile){
+      formData.append("image" , imgFile)
+    }  
+    formData.append("title" ,values?.title)  
+ 
+    const id = itemForEdit?.id 
+    if(itemForEdit?.id){
+  await updateSlider({id , formData}).then((res)=>{ 
+     if(res?.data?.success){
+    Swal.fire({
+        text:res?.data?.message,
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        refetch();  
+        setItemForEdit(null)  
+        setImgUrl(null) 
+        setImgFile(null)
+        form.resetFields() 
+        setOpenAddModel(false);
+      })
+}else{
+    Swal.fire({
+        title: "Oops",
+        text: res?.error?.data?.message,
+        icon: "error",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+  
+}})
+    }else{
+      await createSlider(formData) .then((res)=>{
+        if(res?.data?.success){
+          Swal.fire({
+              text:res?.data?.message,
+              icon: "success",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              refetch();  
+              setItemForEdit(null)  
+              setImgUrl(null) 
+              setImgFile(null)
+              form.resetFields() 
+              setOpenAddModel(false);
+            })
+      }else{
+          Swal.fire({
+              title: "Oops",
+              text: res?.error?.data?.message,
+              icon: "error",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+        
+      }
+      })
+    }
+
   };
 
-  const handleValue = (value) => {
-    setCategory(value);
-  };
+
 
   return (
     <div>
@@ -24,9 +100,12 @@ const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel }) => {
         centered
         open={openAddModel}
         onCancel={() => {
-          // null;
+          // null;  
+          setItemForEdit(null) 
+          setImgUrl(null) 
           setImgFile(null);
-          setOpenAddModel(false);
+          setOpenAddModel(false); 
+          form.resetFields()
         }}
         width={500}
         footer={false}
@@ -38,7 +117,7 @@ const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel }) => {
           >
             {itemForEdit ? "Update Slider" : "Add Slider"}
           </h1>
-          <Form onFinish={onFinish}>
+          <Form onFinish={onFinish} form={form}>
             <div>
               <p className="text-[#6D6D6D] py-1"> Name</p>
               <Form.Item
@@ -65,10 +144,10 @@ const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel }) => {
                 style={{ display: "block", margin: "4px 0" }}
                 className="p-3 border"
               >
-                <Form.Item name="image">
+                <Form.Item name="images">
                   <div className="flex justify-center items-center w-full h-full border-dashed border border-black py-10">
-                    {imgFile ? (
-                      <img src={URL.createObjectURL(imgFile)} alt="" />
+                    {imgURl ? (
+                      <img src={imgURl} alt="" />
                     ) : (
                       <FaRegImage className="text-2xl" />
                     )}

@@ -1,273 +1,95 @@
-import { useEffect, useRef, useState } from "react";
-import { Button, Dropdown, Input, Modal, Select, Space, Table } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import {Input,Table } from "antd";
 import Swal from "sweetalert2";
-import { RiLoader3Fill } from "react-icons/ri";
-import Logo from "../../assets/img.png";
-import { FiArrowUpRight, FiSearch } from "react-icons/fi";
-import { MdOutlineDelete, MdPersonOff } from "react-icons/md";
-
+import { FiSearch } from "react-icons/fi";
+import { MdOutlineDelete, MdPerson, MdPersonOff,} from "react-icons/md";
 import { IoEyeOutline } from "react-icons/io5";
 import UserModal from "../../Components/Dashboard/UserModal";
+import { useGetUsersQuery, useUpdateUserStatusMutation } from "../../redux/apislices/DashboardSlices";
+import { imageUrl } from "../../redux/api/apiSlice";
 
-const data = [
-  {
-    key: "#1239",
+const Users = () => { 
+ 
+  const [open, setOpen] = useState(false);  
+  const [searchValue , setSearchValue] = useState()  
+  const [modalData , setModalData] = useState(null)  
+  const [page, setPage] = useState(1)
+  const {data:users , refetch} = useGetUsersQuery({page:page ,search:searchValue})   
+  const [updateUserStatus] = useUpdateUserStatusMutation() 
+  const [userStatus , setUserStatus ]= useState("") 
+  const pagePerSize = 10 
+  console.log(users);
+  const usersInfo = users?.data?.result  
 
+  const data =usersInfo?.map((value , index) =>({
+    key: index+1, 
+    id:value?._id ,
     user: {
-      name: "Mr. Mahmud",
-      img: <img src={Logo} height={48} width={48} />,
+      name: value?.fullName,
+      img:value?.avatar?.startsWith("https")?value?.avatar : `${imageUrl}${value?.avatar}`,
     },
-    status: "Pending",
-    email: "mr101@mail.ru",
-    contact: "(+33)7 00 55 59 27",
-    location: "Corona, Michigan",
-  },
-  {
-    key: "#1238",
-    status: "Pending",
-    user: {
-      name: "Lily",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "xterris@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Great Falls, Maryland ",
-  },
-  {
-    key: "#1237",
-    status: "Approve",
-    user: {
-      name: "Kathry",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "irnabela@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Syracuse, Connecticut ",
-  },
-  {
-    key: "#1236",
-    status: "Pending",
-    user: {
-      name: "Priscilla",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "codence@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Lafayette, California",
-  },
-  {
-    key: "#1235",
-    status: "Pending",
-    user: {
-      name: "Claire",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "quasiah@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Pasadena, Oklahoma",
-  },
-  {
-    key: "#1234",
-    status: "Approve",
-    user: {
-      name: "Irmar",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "xeno@yandex.ru",
-    contact: "(+33)7 00 55 59 27",
-    location: "Lansing, Illinois",
-  },
-  {
-    key: "#1233",
-    status: "Approve",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Reject",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
+    email: value?.email,
+contact:value?.phoneNumber ,
+    location: value?.permanentAddress,
+status:value?.status ,
+  })) 
 
-  {
-    key: "#4",
-    status: "Approve",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "jusef@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
+  const handleStatus=(record)=>{
+ const newStatus  = record?.status === "active" ? "block" : "unblock" 
+ setUserStatus(newStatus) 
+ handleUpdateStatus(record , newStatus)
+  }
 
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#5",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "asad@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
 
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#6",
-    status: "Approve",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "fahim@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#7",
-    name: "Nadir",
-    user: {
-      name: "Ashutosh",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "nadir@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-    status: "Approve",
-  },
-  {
-    key: "#8",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "tushar@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#9",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "rahman@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#10",
-    status: "Reject",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "rafsan@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#11",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "jusef@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-];
-const Users = () => {
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
-  const [open, setOpen] = useState(false);
-
-  const handleDelete = (id) => {
+  const handleUpdateStatus = async(record , newStatus ) => { 
+    // console.log(values);   
+    const data ={ 
+      id:record?.id ,
+      status: newStatus ,
+    } 
+    console.log(data);  
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: `Are you sure you want to ${newStatus} this user?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    }).then(async(result) => {
       if (result.isConfirmed) {
+    await updateUserStatus(data).then((res)=>{  
+      
+      if(res?.data?.success){
         Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-        });
-      }
-    });
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            refetch();   
+          })
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    } 
+
+    }) } })
+
   };
 
   const columns = [
     {
       title: "S.No",
       dataIndex: "key",
-      key: "key",
+      key: "key", 
+      render:(_,record,index)=><p>{((page-1)*pagePerSize)+record?.key}</p>
     },
     {
       title: "User",
@@ -282,7 +104,7 @@ const Users = () => {
               gap: 12,
             }}
           >
-            <p> {user?.img} </p>
+            <p> <img src={user?.img} height={48} width={48} />  </p>
 
             <p
               style={{
@@ -330,7 +152,7 @@ const Users = () => {
           }}
         >
           <button
-            onClick={() => setOpen(true)}
+            onClick={() => {setOpen(true) , setModalData(record)} }
             style={{
               cursor: "pointer",
               border: "none",
@@ -341,21 +163,24 @@ const Users = () => {
           </button>
 
           <div>
-            <button onClick={() => handleDelete(record?.key)}>
-              <MdOutlineDelete size={25} className=" text-red-500" />
+            <button onClick={() => {handleStatus(record)}}> 
+              {
+                record?.status === "active" ? <MdPerson  size={25} className=" text-[#00809E]" /> : <MdPersonOff  size={25} className=" text-red-500" />
+              }
+              
             </button>
           </div>
         </div>
       ),
     },
-  ];
+  ]; 
 
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
+  const handleSearch =(e)=>{ 
+    const value = e.target.value  
+    setSearchValue(value)
+  }
+
+
 
   return (
     <div className="">
@@ -393,14 +218,15 @@ const Users = () => {
               }}
             >
               <Input
-                placeholder="Search..."
+                placeholder="Search Using Email & Location"
                 prefix={<FiSearch size={14} color="#868FA0" />}
                 style={{
                   width: "100%",
                   height: "100%",
                   fontSize: "14px",
                 }}
-                size="middle"
+                size="middle" 
+                onChange={(e)=>handleSearch(e)}
               />
             </div>
           </div>
@@ -408,30 +234,16 @@ const Users = () => {
         <div>
           <Table
             columns={columns}
-            dataSource={data}
+            dataSource={data} 
             pagination={{
-              pageSize: 10,
-              defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              // defaultCurrent: 1,
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-                // gap: 10,
-                // justifyContent: "space-between",
-              },
+              current:parseInt(page),  
+              total:users?.data?.meta?.total ,
+              onChange:(page)=>setPage(page)
             }}
           />
         </div>
       </div>
-      <UserModal open={open} setOpen={setOpen} />
+      <UserModal open={open} setOpen={setOpen} modalData={modalData} />
     </div>
   );
 };

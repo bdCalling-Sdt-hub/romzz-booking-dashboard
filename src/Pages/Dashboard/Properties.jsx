@@ -1,98 +1,70 @@
 import React from "react";
 import { BiLeftArrowCircle } from "react-icons/bi";
-import house from "../../assets/house.png";
-import { RiEdgeNewFill } from "react-icons/ri";
-import { MdOutlinePets } from "react-icons/md";
-import { TbAirConditioningDisabled } from "react-icons/tb";
-import { AiOutlineWifi } from "react-icons/ai";
-import { FaFireAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
-const data = [
-  {
-    title: "Move on :",
-    value: "Instant",
-  },
-  {
-    title: "Gender :",
-    value: "Male/Female",
-  },
-  {
-    title: "Guest type :",
-    value: " Single",
-  },
-  {
-    title: "Occupation :",
-    value: "Student",
-  },
-];
+import { Link ,useNavigate,useParams  } from "react-router-dom";  
+import {useGetSingleReqQuery, useUpdateApproveMutation, useUpdateRejectMutation} from "../../redux/apislices/DashboardSlices"
+import moment from "moment";
+import { Button } from "antd";
+import Swal from "sweetalert2";
 
-const facilities = [
-  {
-    icon: (
-      <p>
-        <RiEdgeNewFill size={20} />
-      </p>
-    ),
-    title: "Newest",
-  },
-  {
-    icon: (
-      <p>
-        <AiOutlineWifi size={20} />
-      </p>
-    ),
-    title: "Wi-Fi",
-  },
-  {
-    icon: (
-      <p>
-        <MdOutlinePets size={20} />
-      </p>
-    ),
-    title: "Pet allowed",
-  },
-  {
-    icon: (
-      <p>
-        <FaFireAlt size={20} />
-      </p>
-    ),
-    title: "Heating",
-  },
-  {
-    icon: (
-      <p>
-        <TbAirConditioningDisabled size={20} />
-      </p>
-    ),
-    title: "AC",
-  },
-  {
-    icon: (
-      <p>
-        <AiOutlineWifi size={20} />
-      </p>
-    ),
-    title: "Wi-Fi",
-  },
-  {
-    icon: (
-      <p>
-        <MdOutlinePets size={20} />
-      </p>
-    ),
-    title: "Pet allowed",
-  },
-  {
-    icon: (
-      <p>
-        <FaFireAlt size={20} />
-      </p>
-    ),
-    title: "Heating",
-  },
-];
-const Properties = () => {
+
+const Properties = () => { 
+  const {id} = useParams()  
+  const {data:properties} = useGetSingleReqQuery(id)  
+  const propertiesInfo = properties?.data  
+  const [updateApprove ] = useUpdateApproveMutation() 
+  const [updateReject] = useUpdateRejectMutation()
+ const navigate = useNavigate()
+
+  const handleApprove = async()=>{
+    await updateApprove(id).then((res) => {
+      if(res?.data?.success){
+        Swal.fire({
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+          
+            window.location.reload()
+            // navigate("/post-request") 
+          })
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    }
+    })
+  } 
+
+  const handleReject = async()=>{
+    await updateReject(id).then((res)=>{
+      if(res?.data?.success){
+        Swal.fire({
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.reload()
+            // navigate("/post-request") 
+          })
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    }
+    })
+  }
   return (
     <div>
       <Link to="/post-request">
@@ -109,11 +81,11 @@ const Properties = () => {
 
       <div className=" py-8">
         <div className="py-5 mx-auto text-center">
-          <img className="w-72 h-40  mx-auto mb-2" src={house} alt="" />
+          <img className="w-72 h-40  mx-auto mb-2" src={propertiesInfo?.propertyImages[0]} alt="" />
           <p className="text-2xl font-semibold py-1">
-            Looking for a room in Sydney
+            {propertiesInfo?.propertyTitle}
           </p>
-          <p className="text-lg font-semibold text-[#00809E]">$250/PW </p>
+          <p className="text-lg font-semibold text-[#00809E]">${propertiesInfo?.price}/per {propertiesInfo?.priceType}</p>
         </div>
 
         <div className=" w-full flex justify-center items-center">
@@ -126,7 +98,7 @@ const Properties = () => {
                 className="text-[14px] w-1/2 
                  text-[#737373]"
               >
-                Mithila
+               {propertiesInfo?.createdBy?.fullName}
               </p>
             </div>
 
@@ -134,7 +106,7 @@ const Properties = () => {
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Contact No
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">98709870984</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.ownerNumber}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
@@ -142,12 +114,7 @@ const Properties = () => {
                 About
               </p>
               <p className="text-[14px] w-1/2  text-[#737373]">
-                amet, ex Ut adipiscing sodales. massa placerat. Sed eget
-                fringilla gravida nisi Donec eu eu tempor nulla, nulla, leo.
-                faucibus tortor. Donec libero, elementum tincidunt id tincidunt
-                dui faucibus turpis consectetur amet, nibh luctus nibh lacus, ex
-                hendrerit fringilla fringilla est. lacus Nunc tincidunt
-                dignissim, id nec Lorem dui Sed nibh id elementum non tincidunt
+        {propertiesInfo?.description}
               </p>
             </div>
 
@@ -156,7 +123,7 @@ const Properties = () => {
                 Address
               </p>
               <p className="text-[14px] w-1/2  text-[#737373]">
-                6391 Elgin St. Celina, Delaware 10299
+              {propertiesInfo?.address}
               </p>
             </div>
 
@@ -164,91 +131,108 @@ const Properties = () => {
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Size
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">400/sf</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.size}/sf</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Bathrooms
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">2</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.bathrooms}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
-                Bathrooms
+                Bedrooms
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.bedrooms}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Kitchen
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.kitchen}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Balcony
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">1</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.balcony}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Bed Type
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">Sofa Bed</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.bedType}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Decorated
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">Furnished</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.decorationType}</p>
             </div>
 
             <div className="flex items-center  justify-center w-full gap-10 mb-3">
               <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
                 Property Type
               </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">Apartment</p>
+              <p className="text-[14px] w-1/2  text-[#737373]">{propertiesInfo?.propertyType}</p>
             </div>
 
-            <div className="flex items-center  justify-center w-full gap-10 mb-3">
-              <p className="text-[16px]  w-1/2  text-[#252B42] font-medium ">
-                Balcony
-              </p>
-              <p className="text-[14px] w-1/2  text-[#737373]">2</p>
-            </div>
           </div>
           <p></p>
         </div>
 
         <div className=" flex items-center  gap-16 justify-center my-3 mb-5">
-          {data.map((value, index) => (
+        
             <div
-              key={index}
               className="flex items-center gap-1 text-[16px] font-medium"
             >
               {" "}
-              <p className="text-[#5C5C5C]"> {value.title} </p>{" "}
-              <p className="text-[#00B047]"> {value?.value} </p>{" "}
+              <p className="text-[#5C5C5C]">Move on : </p>{" "}
+              <p className="text-[#00B047]">{moment(propertiesInfo?.moveOn).format('D MMM YYYY')}  </p>{" "}
             </div>
-          ))}
+            
+            <div
+              className="flex items-center gap-1 text-[16px] font-medium"
+            >
+              {" "}
+              <p className="text-[#5C5C5C]">Gender : </p>{" "}
+              <p className="text-[#00B047]">{propertiesInfo?.allowedGender}  </p>{" "}
+            </div> 
+
+            <div
+              className="flex items-center gap-1 text-[16px] font-medium">
+              {" "}
+              <p className="text-[#5C5C5C]">Guest type : </p>{" "}
+              <p className="text-[#00B047]">{propertiesInfo?. guestType}  </p>{" "}
+            </div> 
+
+            <div
+              className="flex items-center gap-1 text-[16px] font-medium"
+            >
+              {" "}
+              <p className="text-[#5C5C5C]">Occupation : </p>{" "}
+              <p className="text-[#00B047]">{propertiesInfo?.occupation}  </p>{" "}
+            </div>
+
+ 
         </div>
         <div className="flex items-center justify-center">
           <div>
             <h1 className="text-2xl font-semibold py-2 "> Facilities</h1>
             <div className=" flex items-center justify-center  gap-8">
-              {facilities.map((value, index) => (
+              {propertiesInfo?.facilities.map((value, index) => (
                 <button
                   key={index}
                   className=" flex items-center gap-2 bg-[#FFDFD4] text-black w-[150px] h-[40px]  px-3  rounded-lg font-semibold"
                 >
                   {" "}
-                  <span> {value?.icon}</span> <span> {value?.title}</span>{" "}
+                  <span> {value?.icon}</span> <span> {value?.name}</span>{" "}
                 </button>
               ))}
             </div>
@@ -256,13 +240,34 @@ const Properties = () => {
         </div>
 
         <div className=" flex items-center justify-center gap-6 mt-8">
-          <button className=" bg-[#80C738] text-white w-[90px] h-[40px] rounded-lg ">
+          <Button  
+           disabled={propertiesInfo?.status === "approve"} 
+           className="disabled:bg-[#80C738]/50 bg-[#80C738]" 
+           onClick={()=>handleApprove()}
+          style={{ 
+    
+            color:"white" ,
+            width:"90px" ,
+            height:"40px" ,
+            borderRadius:"10px"
+          }}>
             Approve{" "}
-          </button>
+          </Button>
 
-          <button className=" bg-[#DF3232] text-white w-[90px] h-[40px] rounded-lg ">
+          <Button  
+          disabled={propertiesInfo?.status === "reject"} 
+          className="disabled:bg-[#DF3232]/50 bg-[#DF3232]" 
+          onClick={()=>handleReject()}
+          style={{
+            color:"white" ,
+            width:"90px" ,
+            height:"40px" ,
+            borderRadius:"10px" ,
+            
+          }}
+          >
             Reject{" "}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,22 +1,47 @@
 import { Button, Form, Input, Typography } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useForgetPassMutation } from "../../redux/apislices/AuthSlices";
+import { setToLocalStorage } from "../../Util/local-storage";
 
-const ForgotPassword = () => {
-  const navigate = useNavigate();
-  const onFinish = (values) => {
-    localStorage.setItem("email", JSON.stringify(values.email));
-    console.log("Received values of form: ", values.email);
-    Swal.fire({
-      position: "center",
-      icon: "success",
-      title: "Send OTP ",
-      showConfirmButton: false,
-      timer: 1500,
-    }).then(() => {
-      navigate("/otp");
-    });
+
+const ForgotPassword = () => { 
+  const [forgetPass ,{isSuccess ,isError ,error ,data}] = useForgetPassMutation() 
+  const [email , setEmail] = useState()
+  const navigate = useNavigate(); 
+
+  useEffect(() => {
+    if (isSuccess) {
+      // console.log("you login successfully");
+      if (data) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: data?.message,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          setToLocalStorage("email", email)      
+          navigate("/otp")    
+          window.location.reload(); 
+        });
+      }
+    }
+    if (isError) {
+      Swal.fire({
+        text: error?.data?.message,  
+        icon: "error",
+      });
+    }
+  }, [isSuccess, isError, error, data, navigate]);  
+
+  const onFinish = async(values) => {   
+    setEmail(values?.email)
+    await forgetPass(values).then((res)=>{
+      console.log(res);
+    })
+    
   };
   return (
     <div
@@ -92,7 +117,7 @@ const ForgotPassword = () => {
 
         <Form.Item>
           <Button
-            onClick={() => navigate("/otp")}
+        
             type="primary"
             htmlType="submit"
             className="login-form-button"

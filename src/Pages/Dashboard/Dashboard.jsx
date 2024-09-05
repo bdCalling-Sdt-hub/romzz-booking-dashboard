@@ -20,18 +20,26 @@ import { RiNotification2Line } from "react-icons/ri";
 import { AiOutlineTransaction } from "react-icons/ai";
 
 import { BsBuildingAdd, BsFillBuildingsFill } from "react-icons/bs";
+import { imageUrl } from "../../redux/api/apiSlice";
+import { useGetProfileQuery } from "../../redux/apislices/AuthSlices";
+import { useGetNotificationQuery, useUpdateReadNotificationMutation } from "../../redux/apislices/DashboardSlices";
 
 const { Header, Sider, Content } = Layout;
 
 const Dashboard = () => {
   const [setting, setSetting] = useState(false);
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  console.log(setting);
-  const handleLogOut = () => {
-    navigate("/login");
-    window.location.reload();
-  };
+  const { pathname } = useLocation(); 
+  const {data:Notifications} = useGetNotificationQuery() 
+  const totalNotification = Notifications?.data?.result?.filter(item => item?.isSeen === false).length 
+const [updateReadNotification] = useUpdateReadNotificationMutation()
+  const {data:AdminInfo} = useGetProfileQuery()   
+  console.log(AdminInfo);
+  const user  = AdminInfo?.data  
+  const src = user?.avatar?.startsWith("https") ? user?.avatar : `${imageUrl}${user?.avatar}` 
+
+ const handleUpdateNotification =async() =>{
+ await updateReadNotification()
+ }
 
   const linkItems = [
     {
@@ -60,11 +68,6 @@ const Dashboard = () => {
       title: "Transactions",
       path: "/transactions",
       icon: <AiOutlineTransaction size={24} />,
-    },
-    {
-      title: "Review",
-      path: "/feedback",
-      icon: <VscFeedback size={24} />,
     },
     {
       title: "Support",
@@ -346,28 +349,30 @@ const Dashboard = () => {
                   alignItems: "center",
                   borderRadius: "50%",
                   position: "relative",
-                }}
+                }} 
+
+                onClick={()=>handleUpdateNotification()}
               >
-                <RiNotification2Line color="black" size={19} />
+                <RiNotification2Line color="black" size={24} />
 
                 <div
                   style={{
-                    width: "15px",
-                    height: "15px",
+                    width: "20px",
+                    height: "20px",
                     borderRadius: "50%",
-                    background: "#F8EC41",
+                    background: "red",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    color: "#6A5ECC",
+                    color: "white",
                     position: "absolute",
-                    top: 8,
-                    right: 10,
+                    top: 2,
+                    right: 3,
                     fontWeight: "500",
                     fontSize: 12,
                   }}
                 >
-                  5
+                  {totalNotification}
                 </div>
               </div>
             </Link>
@@ -384,7 +389,7 @@ const Dashboard = () => {
               }}
             >
               <img
-                src={user}
+                src={src}
                 style={{
                   width: "44px",
                   height: "44px",
@@ -402,7 +407,7 @@ const Dashboard = () => {
                   width: 200,
                 }}
               >
-                Admin Asad
+               {user?.fullName}
               </h2>
             </Link>
           </div>

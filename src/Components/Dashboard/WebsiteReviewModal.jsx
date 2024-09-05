@@ -10,15 +10,15 @@ const WebsiteReviewModal = ({ open, setOpen, getReview }) => {
         onCancel={() => setOpen(false)}
         centered
         footer={false}
-        width={450}
+        width={420}
       >
         <div className="py-7 px-10">
           <div className="mx-auto ">
             <img
-              src={userImg}
+              src={getReview?.image}
               alt=""
               height={120}
-              width={160}
+              width={140}
               className="mx-auto"
             />
           </div>

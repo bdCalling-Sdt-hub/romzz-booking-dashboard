@@ -5,283 +5,43 @@ import Logo from "../../assets/img.png";
 import { FiSearch } from "react-icons/fi";
 import { MdOutlineDelete } from "react-icons/md";
 import { IoEyeOutline } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useGetRequestQuery } from "../../redux/apislices/DashboardSlices";
+import { imageUrl } from "../../redux/api/apiSlice";
 
-const data = [
-  {
-    key: "#1239",
 
-    user: {
-      name: "Mr. Mahmud",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Pending",
-    email: "mr101@mail.ru",
-    contact: "(+33)7 00 55 59 27",
-    location: "Corona, Michigan",
-  },
-  {
-    key: "#1238",
-    status: "Pending",
-    user: {
-      name: "Lily",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "xterris@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Great Falls, Maryland ",
-  },
-  {
-    key: "#1237",
-    status: "Approve",
-    user: {
-      name: "Kathry",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "irnabela@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Syracuse, Connecticut ",
-  },
-  {
-    key: "#1236",
-    status: "Pending",
-    user: {
-      name: "Priscilla",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "codence@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Lafayette, California",
-  },
-  {
-    key: "#1235",
-    status: "Pending",
-    user: {
-      name: "Claire",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "quasiah@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Pasadena, Oklahoma",
-  },
-  {
-    key: "#1234",
-    status: "Approve",
-    user: {
-      name: "Irmar",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "xeno@yandex.ru",
-    contact: "(+33)7 00 55 59 27",
-    location: "Lansing, Illinois",
-  },
-  {
-    key: "#1233",
-    status: "Approve",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Reject",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
-  {
-    key: "#1233",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "redaniel@gmail.com",
-    contact: "(+33)7 00 55 59 27",
-    location: "Coppell, Virginia",
-  },
+const PostRequest = () => {  
+const [searchValue , setSearchValue] = useState() 
+const [page , setPage] = useState(1) 
+  const {data:requests} = useGetRequestQuery({searchValue,page})  
+  console.log(requests); 
+  const pagePerSize = 10 
+const navigate = useNavigate()
 
-  {
-    key: "#4",
-    status: "Approve",
+  const data = requests?.data?.data?.map((value , index)=>({
+    key: index+1 , 
+    id: value?._id ,
+    status: value?.status,
     user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
+      name: value?.createdBy?.fullName,
+      img: value?.createdBy?.avatar?.startsWith("https") ?  value?.createdBy?.avatar : `${imageUrl}${value?.createdBy?.avatar}` ,
     },
-    email: "jusef@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
+    email: value?.createdBy?.email,
+  }))
 
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#5",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "asad@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
 
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#6",
-    status: "Approve",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "fahim@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
+  const handleViewReq =(id) =>{
+    navigate(`/properties/${id}`)
+  }
 
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#7",
-    name: "Nadir",
-    user: {
-      name: "Ashutosh",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "nadir@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
 
-    selling: "500",
-    balance: "600",
-    status: "Approve",
-  },
-  {
-    key: "#8",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "tushar@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#9",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "rahman@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#10",
-    status: "Reject",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "rafsan@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-  {
-    key: "#11",
-    status: "Pending",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    email: "jusef@gmail.com",
-    date: "18 Jul, 2023  4:30pm",
-    location: "Banasree",
-
-    selling: "500",
-    balance: "600",
-  },
-];
-
-const PostRequest = () => {
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
-  const [open, setOpen] = useState(false);
-
-  const dropdownRef = useRef();
-
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-        });
-      }
-    });
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDate(false);
-        setOpen("");
-        setFilter(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
 
   const columns = [
     {
       title: "S.No",
       dataIndex: "key",
-      key: "key",
+      key: "key", 
+      render:(_,record,index)=> <p>{((page-1)*pagePerSize)+ record?.key}</p>
     },
     {
       title: "User",
@@ -295,9 +55,8 @@ const PostRequest = () => {
               alignItems: "center",
               gap: 12,
             }}
-          >
-            <p> {user?.img} </p>
-
+          > 
+          <img src={user?.img} height={48} width={48} />
             <p
               style={{
                 letterSpacing: 0.4,
@@ -329,9 +88,9 @@ const PostRequest = () => {
       key: "status",
       render: (status) => (
         <p
-          className={`${status === "Pending" && "text-[#FF9773]"} ${
-            status === "Approve" && "text-[#00809E]"
-          } ${status === "Reject" && "text-[#e64237]"} font-medium`}
+          className={`${status === "pending" && "text-[#FF9773]"} ${
+            status === "approve" && "text-[#00809E]"
+          } ${status === "reject" && "text-[#e64237]"} font-medium`}
         >
           {" "}
           {status}
@@ -352,8 +111,8 @@ const PostRequest = () => {
             paddingRight: 10,
           }}
         >
-          <Link to="/properties">
-            <button
+        
+            <button onClick={()=>handleViewReq(record?.id)}
               style={{
                 cursor: "pointer",
                 border: "none",
@@ -362,24 +121,17 @@ const PostRequest = () => {
             >
               <IoEyeOutline size={22} className="" />
             </button>{" "}
-          </Link>
-
-          <div>
-            <button onClick={() => handleDelete(record?.key)}>
-              <MdOutlineDelete size={25} className=" text-red-500" />
-            </button>
-          </div>
+         
         </div>
       ),
     },
-  ];
+  ]; 
+  
+  const handleSearch =(e)=>{
+     const value = e?.target?.value 
+     setSearchValue(value)
+  }
 
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
 
   return (
     <div className="">
@@ -417,14 +169,15 @@ const PostRequest = () => {
               }}
             >
               <Input
-                placeholder="Search..."
+                placeholder="Search Using Email & Location"
                 prefix={<FiSearch size={14} color="#868FA0" />}
                 style={{
                   width: "100%",
                   height: "100%",
                   fontSize: "14px",
                 }}
-                size="middle"
+                size="middle" 
+                onChange={(e)=>handleSearch(e)}
               />
             </div>
           </div>
@@ -432,24 +185,11 @@ const PostRequest = () => {
         <div>
           <Table
             columns={columns}
-            dataSource={data}
+            dataSource={data} 
             pagination={{
-              pageSize: 10,
-              // defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-                // gap: 10,
-                // justifyContent: "space-between",
-              },
+              current: parseInt(page), 
+              total:requests?.data?.meta?.total ,
+              onChange:(page)=>setPage(page)
             }}
           />
         </div>

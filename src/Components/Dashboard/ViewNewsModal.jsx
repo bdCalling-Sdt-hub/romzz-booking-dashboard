@@ -22,8 +22,7 @@ const ViewNewsModal = ({ open, setOpen, getNews }) => {
             layout="vertical"
             initialValues={{
               title: getNews?.name,
-              content:
-                "Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves",
+              content: getNews?.description,
             }}
           >
             <Form.Item

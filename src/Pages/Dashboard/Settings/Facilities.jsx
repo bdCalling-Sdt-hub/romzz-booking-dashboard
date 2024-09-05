@@ -3,24 +3,28 @@ import React, { useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import { PlusOutlined } from "@ant-design/icons";
 import { FaRegTrashAlt } from "react-icons/fa";
-const data = [
-  {
-    key: 1,
-    title: "WiFi",
-  },
-  {
-    key: 2,
-    title: "Network",
-  },
-  {
-    key: 3,
-    title: "Smoking",
-  },
-];
-const Facilities = () => {
-  const [open, setOpen] = useState(false);
+import { useDeleteFacilityMutation, useGetFacilityQuery } from "../../../redux/apislices/DashboardSlices";
+import FacilityModal from "../../../Components/Dashboard/FacilityModal";
+import Swal from "sweetalert2";
+import { imageUrl } from "../../../redux/api/apiSlice";
 
-  const handleDelete = (id) => {
+const Facilities = () => {
+  const [open, setOpen] = useState(false);  
+  const [modalData , setModalData] = useState({})  
+  const [page, setPage] = useState(1)
+  const {data:facilities , refetch} = useGetFacilityQuery()  
+  const [deleteFacility] = useDeleteFacilityMutation()
+  console.log(facilities?.data); 
+
+  const data = facilities?.data?.map((value , index) =>({
+    key: index+1, 
+    title: value?.name, 
+    icon:value?.icon?.startsWith("https")? value?.icon : `${imageUrl}${value?.icon}`,
+    id:value?._id
+  }))
+
+  const handleDelete = (id) => { 
+    console.log(id);
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -29,15 +33,29 @@ const Facilities = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        await deleteFacility(id).then((res) => {
+if(res?.data?.success){
+  Swal.fire({
+    text: res?.data?.message,
+    icon: "success",
+    showConfirmButton: false,
+    timer: 1500,
+  }).then(() => {
+    refetch();
+  });
+}else {
+  Swal.fire({
+    title: "Oops",
+    text: res?.error?.data?.message,
+    icon: "error",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+}
+
+        })
       }
     });
   };
@@ -46,7 +64,8 @@ const Facilities = () => {
     {
       title: "S.No",
       dataIndex: "key",
-      key: "key",
+      key: "key", 
+      render:(key)=><p>{((page-1)*10)+key}</p>
     },
     {
       title: "Name",
@@ -54,10 +73,18 @@ const Facilities = () => {
       key: "title",
     },
     {
+      title: "Icon",
+      dataIndex: "icon",
+      key: "icon", 
+      render:(icon)=>(
+        <img src={icon} alt="" style={{objectFit:"contain"}} />
+      )
+    },
+    {
       title: "Action",
       dataIndex: "action",
       key: "Action",
-      render: (_, record) => (
+      render: (_,record) => (
         <div>
           <p
             style={{
@@ -69,7 +96,8 @@ const Facilities = () => {
           >
             <button
               onClick={() => {
-                setOpen(true);
+                setOpen(true) 
+                setModalData(record)
               }}
               style={{
                 cursor: "pointer",
@@ -82,7 +110,7 @@ const Facilities = () => {
               <CiEdit size={25} />
             </button>
             <button
-              onClick={() => handleDelete()}
+              onClick={() => handleDelete(record?.id)}
               style={{
                 cursor: "pointer",
                 border: "none",
@@ -136,47 +164,14 @@ const Facilities = () => {
           </Button>
         </div>
       </div>
-      <Table columns={columns} style={{}} dataSource={data} />
-      <Modal
-        centered
-        open={open}
-        onCancel={() => {
-          setOpen(false);
-        }}
-        width={500}
-        footer={false}
-      >
-        <div className=" py-2 px-5">
-          <p className=" py-2 mt-4 text-xl font-medium text-[#6D6D6D]">
-            Add Facility
-          </p>
-          <Form className="w-full">
-            <div className=" w-2/3">
-              <p className="text-[#6D6D6D] py-1">Facility Name</p>
-              <Form.Item
-                name="title"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input Package Name",
-                  },
-                ]}
-              >
-                <Input
-                  className="w-[100%] border outline-none px-3 py-[10px]"
-                  type="text"
-                />
-              </Form.Item>
-            </div>
+      <Table columns={columns} dataSource={data}  pagination={{ 
+        current: parseInt(page)  ,
+        total:facilities?.data?.meta?.total ,
+        onChange:(page)=>setPage(page)
+      }}/> 
 
-            <Form.Item className="text-center mt-5">
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </Modal>
+      <FacilityModal open={open} setOpen={setOpen} modalData={modalData} setModalData={setModalData} refetch={refetch} />
+  
     </div>
   );
 };

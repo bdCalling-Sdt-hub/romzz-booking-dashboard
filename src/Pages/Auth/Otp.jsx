@@ -1,30 +1,82 @@
 import { Button } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useForgetPassMutation, useSendOtpMutation } from "../../redux/apislices/AuthSlices";
+import { getFromLocalStorage, setToLocalStorage } from "../../Util/local-storage";
 
 const Otp = () => {
-  const navigate = useNavigate();
-  const [otp, setOtp] = useState("");
-  const [err, setErr] = useState("");
-
-  const handleResendEmail = () => {
-    const email = JSON.parse(localStorage.getItem("email"));
-  };
-  const handleVerifyOtp = () => {
-    Swal.fire({
-      title: "Password Reset",
-      text: "Your password has been successfully reset. click confirm to set a new password",
-      showDenyButton: false,
-      showCancelButton: false,
-      confirmButtonText: "Confirm",
-      confirmButtonColor: "#F27405",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/update-password");
+  const navigate = useNavigate(); 
+  const [sendOtp , {isSuccess , isError ,data ,error}] = useSendOtpMutation() 
+  const [forgetPass] = useForgetPassMutation()
+  const [otp, setOtp] = useState(null);   
+  console.log(otp);
+  const email = getFromLocalStorage("email")  
+ 
+  useEffect(() => {
+    if (isSuccess) {
+      // console.log("you login successfully");
+      if (data) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: data?.message,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => { 
+          setToLocalStorage("resetToken", data?.data?.accessToken);  
+          navigate("/update-password");  
+          window.location.reload(); 
+        });
       }
-    });
+    }
+    if (isError) {
+      Swal.fire({
+       
+        text: error?.data?.message,  
+        icon: "error",
+      });
+    }
+  }, [isSuccess, isError, error, data, navigate]);  
+
+
+  const handleResendEmail = async() => {   
+    const values = {email:email}
+    await forgetPass(values).then((res)=>{console.log(res) 
+      if(res?.data?.success){
+        Swal.fire({
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          })
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    }
+    })
+  };
+  const handleVerifyOtp = async() => {  
+ 
+    const verificationType = "passwordReset"
+    const values = {
+      email:email ,
+      otp:otp , 
+      verificationType:verificationType
+    }  
+    console.log(values);
+
+    await sendOtp(values).then((res)=>{
+      console.log(res);
+    })
+
   };
 
   return (
@@ -61,13 +113,13 @@ const Otp = () => {
         </h1>
         <p
           style={{
-            width: "380px",
+            width: "450px",
             color: "#5C5C5C",
             margin: "0 auto 0 auto",
           }}
         >
           We sent a reset link to{" "}
-          <span style={{ color: "#545454" }}> contact@dscode...com </span>
+          <span style={{ color: "#545454" , fontWeight:600 }}> {email} </span>
           enter 6 digit code that mentioned in the email
         </p>
         <div
@@ -80,8 +132,8 @@ const Otp = () => {
         >
           <OTPInput
             value={otp}
-            onChange={setOtp}
-            numInputs={5}
+            onChange={(otp)=>setOtp(Number(otp))}
+            numInputs={6}
             inputStyle={{
               height: "50px",
               width: "50px",

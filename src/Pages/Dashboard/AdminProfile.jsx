@@ -1,41 +1,104 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Input } from "antd";
 import Swal from "sweetalert2";
 import { CiEdit } from "react-icons/ci";
-import User from "../../assets/user.png";
+import { useChangePassMutation, useGetProfileQuery, useUpdateProfileMutation } from "../../redux/apislices/AuthSlices";
+import { imageUrl } from "../../redux/api/apiSlice";
+
 const AdminProfile = () => {
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState(false); 
+  const {data:AdminInfo} = useGetProfileQuery()   
+  const [updateProfile ,{isSuccess ,isError ,data:Profile ,error}] = useUpdateProfileMutation() 
+  const [changePass , {isError:isErr , isSuccess:isSucc , error:err , data:changepass}] = useChangePassMutation()
+  console.log(AdminInfo);  
 
-  const [newPassError, setNewPassError] = useState("");
-  const [conPassError, setConPassError] = useState("");
-  const [curPassError, setCurPassError] = useState("");
+  const [imgFile, setImgFile] = useState(""); 
+  const [imgUrl , setImgUrl] = useState(null)  
+  console.log(imgFile);
+  const user  = AdminInfo?.data  
 
-  const [imgPick, setImagePick] = useState(null);
 
-  const onImageChange = (event) => {
-    if (event.target.files && event.target.files[0]) {
-      setImagePick(URL.createObjectURL(event.target.files[0]));
+  //  profile update message 
+  useEffect(() => {
+    if (isSuccess) {
+      if (Profile) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: Profile?.message,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {   
+          window.location.reload(); 
+        });
+      }
+
     }
-  };
-
-  const handleChangePassword = (values) => {
-    console.log(values);
-    if (values?.current_password === values.new_password) {
-      setNewPassError("The New password is semilar with old Password");
-    } else {
-      setNewPassError("");
+    if (isError) {
+      Swal.fire({
+        text: error?.Profile?.message,  
+        icon: "error",
+      });
     }
+  }, [isSuccess, isError, error, Profile]);   
+  
+  //  password update message 
+  useEffect(() => {
+    if (isSucc) {
+      if (changepass) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: changepass?.message,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {   
+          window.location.reload(); 
+        });
+      }
 
-    if (values?.new_password !== values.confirm_password) {
-      setConPassError("New Password and Confirm Password Doesn't Matched");
-    } else {
-      setConPassError("");
     }
-  };
+    if (isErr) {
+      Swal.fire({
+        text: err?.data?.message,  
+        icon: "error",
+      });
+    }
+  }, [isSucc, isErr, err, changepass]);   
 
-  const handleReset = () => {
-    window.location.reload();
-  };
+  const onFinish =async(values)=>{   
+    const formData = new FormData()    
+    const data  ={
+      fullName:values?.fullName
+    }
+    if(imgFile){
+      formData.append("avatar",imgFile)
+    } 
+  formData.append("data" ,JSON.stringify(data))  
+
+  await updateProfile(formData).then((res)=>{
+    // console.log(res);
+  })
+  } 
+
+  const handleChangePassword =async(values)=>{
+ console.log(values);  
+
+ await changePass(values).then((res)=>{
+  console.log(res); 
+
+ })
+  }
+
+  const onImageChange = (event) => { 
+    const file = event.target.files[0]
+ setImgFile(file)
+ setImgUrl(URL.createObjectURL(file));
+  }; 
+
+  const src = imgUrl ? imgUrl : user?.avatar?.startsWith("https") ? user?.avatar : `${imageUrl}${user?.avatar}`
+
+
 
   return (
     <div>
@@ -78,7 +141,7 @@ const AdminProfile = () => {
                 }}
               >
                 <img
-                  src={imgPick ? imgPick : User}
+                  src={src}
                   alt=""
                   style={{
                     height: 114,
@@ -87,8 +150,10 @@ const AdminProfile = () => {
                     objectFit: "cover",
                     boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.35)",
                   }}
-                />
-                <label
+                /> 
+                {
+                  isEdit &&             
+                       <label
                   htmlFor="imageUpload"
                   style={{
                     position: "absolute",
@@ -106,6 +171,8 @@ const AdminProfile = () => {
                 >
                   <CiEdit size={25} color="#929394" />
                 </label>
+                }
+
               </div>
               <p
                 style={{
@@ -114,7 +181,7 @@ const AdminProfile = () => {
                   color: "#333333",
                 }}
               >
-                Admin Asad
+               {user?.fullName}
               </p>
             </div>
           </div>
@@ -170,143 +237,93 @@ const AdminProfile = () => {
               </p>
             </div>
           </div>
-          {isEdit ? (
-            <div className="flex justify-center items-center">
-              <div
-                className=" bg-[#F9F9F9] w-[75%]"
+          {isEdit ? ( 
+            <div className=" flex justify-center items-center"> 
+             <div className="bg-[#F9F9F9]  w-[75%] p-[40px] rounded-lg">
+              <p
                 style={{
-                  padding: "40px",
-                  borderRadius: "10px",
+                  fontSize: 24,
+                  fontWeight: 500,
+                  color: "#00809E",
+                  textAlign: "center",
                 }}
               >
-                <p
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 500,
-                    color: "#00809E",
-                    textAlign: "center",
-                  }}
-                >
-                  Edit Your Profile
-                </p>
-                <div className=" flex justify-center items-center">
-                  <div
+                Edit Your Profile
+              </p> 
+<div className=" flex items-center justify-center "> 
+  <Form style={{  width:"60%" }} layout="vertical"
+   onFinish={onFinish} initialValues={{
+    fullName: user?.fullName,
+    email: user?.email
+  }}
+   > 
+  <div>
+                <div>
+                  
+                  <Form.Item name="fullName" label={<p className=" text-[#636363] text-[14px] font-[500] py-1 ">  User Name </p>}> 
+                  <Input
+                    placeholder="Admin Marie"
                     style={{
-                      marginTop: 25,
-                      width: "65%",
-                    }}
-                  >
-                    <div className=" mb-3">
-                      <label
-                        style={{
-                          color: "#636363",
-                          fontSize: 14,
-                          fontWeight: 500,
-                        }}
-                      >
-                        User Name
-                      </label>
-                      <Input
-                        placeholder="Admin Marie"
-                        style={{
-                          padding: "10px",
-                          color: "#818181",
-                          fontSize: 14,
-                          fontWeight: 400,
-                          margin: "8px 0px",
-                        }}
-                      />
-                    </div>
-                    <div className=" mb-3">
-                      <label
-                        style={{
-                          color: "#636363",
-                          fontSize: 14,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Email
-                      </label>
-                      <Input
-                        placeholder="Camille@gmail.com"
-                        style={{
-                          padding: "10px",
-                          color: "#818181",
-                          fontSize: 14,
-                          fontWeight: 400,
-                          margin: "8px 0px",
-                        }}
-                      />
-                    </div>
-                    <div className=" mb-3">
-                      <label
-                        style={{
-                          color: "#636363",
-                          fontSize: 14,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Contact no
-                      </label>
-                      <Input
-                        placeholder="+99007007007"
-                        style={{
-                          padding: "10px",
-                          color: "#818181",
-                          fontSize: 14,
-                          fontWeight: 400,
-                          margin: "8px 0px",
-                        }}
-                      />
-                    </div>
-                    <div className=" mb-3">
-                      <label
-                        style={{
-                          color: "#636363",
-                          fontSize: 14,
-                          fontWeight: 500,
-                        }}
-                      >
-                        Address
-                      </label>
-                      <Input
-                        placeholder="79/A Joker Vila, Gotham City"
-                        style={{
-                          padding: "10px",
-                          color: "#818181",
-                          fontSize: 14,
-                          fontWeight: 400,
-                          margin: "8px 0px",
-                        }}
-                      />
-                    </div>
-                  </div>
+                      padding: "10px",
+                      color: "#818181",
+                      fontSize: 14,
+                      fontWeight: 400,
+               
+                    }} 
+                  />
+                  </Form.Item>
+                 
+                </div> 
+
+                <div>
+                
+                  <Form.Item name="email" label={<p className=" text-[#636363] text-[14px] font-[500] py-1 ">  User Email </p>}> 
+                  <Input
+                    placeholder="Camille@gmail.com"
+                    style={{
+                      padding: "10px",
+                      color: "#818181",
+                      fontSize: 14,
+                      fontWeight: 400,
+                     
+                    }} 
+                    readOnly
+                  /> 
+                     </Form.Item>
+                 
                 </div>
 
-                <div
-                  style={{
-                    marginTop: 24,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+       
+                </div>
+              <Form.Item   style={{
+                        marginTop: 24,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+              >
+                <Button 
+                htmlType="submit"
+                  style={{ 
+                    height:"45px" ,
+                    backgroundColor: "#00809E",
+                    color: "white",
+                    borderRadius: "8px",
+                    fontWeight: 500,
+                    fontSize: 14,
                   }}
                 >
-                  <Button
-                    style={{
-                      height: 44,
-                      width: 150,
-                      backgroundColor: "#00809E",
-                      color: "white",
-                      borderRadius: "8px",
-                      fontWeight: 500,
-                      fontSize: 14,
-                    }}
-                  >
-                    Save Changes
-                  </Button>
-                </div>
-              </div>
+                  Save Changes
+                </Button>
+              </Form.Item> 
+  </Form>
+                
+
+</div>
+              
             </div>
+            </div>
+             
           ) : (
             <div className=" flex justify-center items-center">
               <div
@@ -318,193 +335,180 @@ const AdminProfile = () => {
                 }}
               >
                 <Form
-                  name="normal_login"
-                  className="login-form"
-                  initialValues={{
-                    remember: true,
-                  }}
-                  style={{ width: "65%", height: "fit-content" }}
-                  onFinish={handleChangePassword}
-                >
-                  <p
+                name="normal_login"
+                className="login-form"
+                initialValues={{
+                  remember: true,
+                }}
+                style={{ width: "55%", height: "fit-content" }}
+                onFinish={handleChangePassword}  
+              >
+                <div style={{ marginBottom: "20px" }}>
+                  <label
                     style={{
-                      fontSize: 24,
+                      margin: "0px 0px",
+                      color: "#636363",
+                      fontSize: 14,
                       fontWeight: 500,
-                      color: "#00809E",
-                      textAlign: "center",
-                      marginBottom: "20px",
                     }}
                   >
-                    Change Password
-                  </p>
-                  <div style={{ marginBottom: "30px" }}>
-                    <label
+                    Current Password
+                  </label>
+                  <Form.Item
+                    style={{ marginBottom: 0 }}
+                    name="currentPassword"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your current password!",
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      placeholder="Enter Password"
+                      type="password"
                       style={{
-                        margin: "0px 0px",
-                        color: "#636363",
-                        fontSize: 14,
-                        fontWeight: 500,
+                        border: "1px solid #E0E4EC",
+                        height: "52px",
+                        background: "white",
+                        borderRadius: "8px",
+                        outline: "none",
+                        margin: "8px 0px 0px 0px",
                       }}
-                    >
-                      Current Password
-                    </label>
-                    <Form.Item
-                      style={{ marginBottom: 0 }}
-                      name="current_password"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input your current password!",
-                        },
-                      ]}
-                    >
-                      <Input.Password
-                        placeholder="Enter Password"
-                        type="password"
-                        style={{
-                          border: "1px solid #E0E4EC",
-                          height: "52px",
-                          background: "white",
-                          borderRadius: "8px",
-                          outline: "none",
-                          margin: "8px 0px 0px 0px",
-                        }}
-                      />
-                    </Form.Item>
-                    {curPassError && (
-                      <label
-                        style={{ display: "block", color: "red" }}
-                        htmlFor="error"
-                      >
-                        {curPassError}
-                      </label>
-                    )}
-                  </div>
+                    />
+                  </Form.Item>
+             
+                </div>
 
-                  <div style={{ marginBottom: "20px" }}>
-                    <label
-                      style={{
-                        margin: "0px 0px",
-                        color: "#636363",
-                        fontSize: 14,
-                        fontWeight: 500,
-                      }}
-                      htmlFor=""
-                    >
-                      New Password
-                    </label>
-                    <Form.Item
-                      name="new_password"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input your new Password!",
-                        },
-                      ]}
-                      style={{ marginBottom: 0 }}
-                    >
-                      <Input.Password
-                        placeholder="Enter Password"
-                        type="password"
-                        style={{
-                          border: "1px solid #E0E4EC",
-                          height: "52px",
-                          background: "white",
-                          borderRadius: "8px",
-                          outline: "none",
-                          margin: "8px 0px 0px 0px",
-                        }}
-                      />
-                    </Form.Item>
-                    {newPassError && (
-                      <label
-                        style={{ display: "block", color: "red" }}
-                        htmlFor="error"
-                      >
-                        {newPassError}
-                      </label>
-                    )}
-                  </div>
-
-                  <div style={{ marginBottom: "40px" }}>
-                    <label
-                      style={{
-                        margin: "0px 0px",
-                        color: "#636363",
-                        fontSize: 14,
-                        fontWeight: 500,
-                      }}
-                      htmlFor="email"
-                    >
-                      Re-Type Password
-                    </label>
-                    <Form.Item
-                      style={{ marginBottom: 0 }}
-                      name="confirm_password"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input your Re-type Password!",
-                        },
-                      ]}
-                    >
-                      <Input.Password
-                        placeholder="Enter Password"
-                        type="password"
-                        style={{
-                          border: "1px solid #E0E4EC",
-                          height: "52px",
-                          background: "white",
-                          borderRadius: "8px",
-                          outline: "none",
-                          margin: "8px 0px 0px 0px",
-                        }}
-                      />
-                    </Form.Item>
-                    {conPassError && (
-                      <label
-                        style={{ display: "block", color: "red" }}
-                        htmlFor="error"
-                      >
-                        {conPassError}
-                      </label>
-                    )}
-                  </div>
-
-                  <div
+                <div style={{ marginBottom: "20px" }}>
+                  <label
                     style={{
-                      width: "100%",
-                      display: "flex",
-                      gap: "16px",
-                      alignItems: "center",
+                      margin: "0px 0px",
+                      color: "#636363",
+                      fontSize: 14,
+                      fontWeight: 500,
                     }}
+                    htmlFor=""
                   >
-                    <div style={{ width: "100%" }}>
-                      <div
+                    New Password
+                  </label>
+                  <Form.Item
+                    name="newPassword"
+                    dependencies={['currentPassword']}
+                    rules={[
+                      {
+                        required: true, 
+                        message: "Please input your New password!",
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('currentPassword') === value) {
+                            return Promise.reject(new Error('The New password is similar to the current Password'));
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
+                    style={{ marginBottom: 0 }}
+                  >
+                    <Input.Password
+                      placeholder="Enter Password"
+                      type="password"
+                      style={{
+                        border: "1px solid #E0E4EC",
+                        height: "52px",
+                        background: "white",
+                        borderRadius: "8px",
+                        outline: "none",
+                        margin: "8px 0px 0px 0px",
+                      }}
+                    />
+                  </Form.Item>
+                 
+                </div>
+
+                <div style={{ marginBottom: "40px" }}>
+                  <label
+                    style={{
+                      margin: "0px 0px",
+                      color: "#636363",
+                      fontSize: 14,
+                      fontWeight: 500,
+                    }}
+                    htmlFor="email"
+                  >
+                    Re-Type Password
+                  </label>
+                  <Form.Item
+                    style={{ marginBottom: 0 }}
+                    name="confirmPassword"
+                    dependencies={['newPassword']}
+                    rules={[
+                      {
+                        required: true, 
+                        message: "Please input your Confirm password!",
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('newPassword') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error('The new password that you entered do not match!'));
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password
+                      placeholder="Enter Password"
+                      type="password"
+                      style={{
+                        border: "1px solid #E0E4EC",
+                        height: "52px",
+                        background: "white",
+                        borderRadius: "8px",
+                        outline: "none",
+                        margin: "8px 0px 0px 0px",
+                      }}
+                    />
+                  </Form.Item>
+              
+                </div>
+
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    gap: "16px",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ width: "100%" }}>
+                    <Form.Item
+                      style={{
+                        marginTop: 24,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Button 
+                      htmlType="submit"
                         style={{
-                          marginTop: 24,
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
+                          height: 44,
+                          width: 150,
+                          backgroundColor: "#07254A",
+                          color: "white",
+                          borderRadius: "8px",
+                          fontWeight: 500,
+                          fontSize: 14,
                         }}
                       >
-                        <Button
-                          style={{
-                            height: 44,
-                            width: 150,
-                            backgroundColor: "#00809E",
-                            color: "white",
-                            borderRadius: "8px",
-                            fontWeight: 500,
-                            fontSize: 14,
-                          }}
-                        >
-                          Save Changes
-                        </Button>
-                      </div>
-                    </div>
+                        Save Changes
+                      </Button>
+                    </Form.Item>
                   </div>
-                </Form>
+                </div>
+              </Form>
               </div>
             </div>
           )}

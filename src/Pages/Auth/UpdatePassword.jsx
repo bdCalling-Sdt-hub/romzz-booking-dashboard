@@ -1,27 +1,49 @@
 import { Button, Form, Input } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useResetPassMutation } from "../../redux/apislices/AuthSlices";
+import { getFromLocalStorage } from "../../Util/local-storage";
 
-const UpdatePassword = () => {
-  const navigate = useNavigate();
-  const [newPassError, setNewPassError] = useState("");
-  const [conPassError, setConPassError] = useState("");
-  const [err, setErr] = useState("");
-  const onFinish = (values) => {
-    const { password, confirmPassword } = values;
-    Swal.fire({
-      title: "Successfully",
-      text: "Your password has been updated, please change your password regularly to avoid this happening",
-      showDenyButton: false,
-      showCancelButton: false,
-      confirmButtonText: "Confirm",
-      confirmButtonColor: "#F27405",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/");
+const UpdatePassword = () => { 
+  const [resetPass ,{isError ,isSuccess ,data ,error}] = useResetPassMutation() 
+  const email = getFromLocalStorage("email") 
+ 
+  const navigate = useNavigate(); 
+
+  useEffect(() => {
+    if (isSuccess) {
+      // console.log("you login successfully");
+      if (data) {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: data?.message,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+        navigate("/login")
+          window.location.reload(); 
+        });
       }
-    });
+    }
+    if (isError) {
+      Swal.fire({
+       
+        text: error?.data?.message,  
+        icon: "error",
+      });
+    }
+  }, [isSuccess, isError, error, data, navigate]);  
+
+  const onFinish =async(values) => { 
+  const value ={
+    email:email , 
+    newPassword:values?.newPassword
+  } 
+  console.log(value);
+await resetPass(value).then((res)=>console.log(res))
+
   };
 
   return (
@@ -47,7 +69,8 @@ const UpdatePassword = () => {
           borderRadius: "12px",
           padding: "90px 57px",
         }}
-        onFinish={onFinish}
+        onFinish={onFinish} 
+        layout="vertical"
       >
         <h1
           style={{
@@ -73,27 +96,21 @@ const UpdatePassword = () => {
           security
         </p>
 
-        <div style={{ margin: "45px 0 20px 0" }}>
-          <label
-            style={{
-              display: "block",
-              color: "#5C5C5C",
-              marginBottom: "5px",
-            }}
-            className="font-semibold"
-            htmlFor=""
-          >
-            New Password
-          </label>
-          <Form.Item
-            name="new_password"
+        <div>
+           
+            <Form.Item
+            name="newPassword"
             rules={[
               {
                 required: true,
-                message: "Please input your new Password!",
+                message: "Please input your password!",
               },
             ]}
-            style={{ marginBottom: 0 }}
+            hasFeedback
+            style={{ marginBottom: "15px", marginTop: "20px" }}
+            label={
+              <p style={{display: "block", color:"#6A6D7C",  fontSize:"17px" }} htmlFor="">New Password</p>
+            }
           >
             <Input.Password
               type="password"
@@ -104,37 +121,39 @@ const UpdatePassword = () => {
                 background: "white",
                 borderRadius: "8px",
                 outline: "none",
+                width: "100%",
+                padding: "8px",
               }}
             />
           </Form.Item>
-          {newPassError && (
-            <label style={{ display: "block", color: "red" }} htmlFor="error">
-              {newPassError}
-            </label>
-          )}
         </div>
-
-        <div style={{ marginBottom: "40px" }}>
-          <label
-            style={{
-              display: "block",
-              color: "#5C5C5C",
-              marginBottom: "5px",
-            }}
-            htmlFor="email"
-            className="font-semibold"
-          >
-            Confirm Password
-          </label>
-          <Form.Item
-            style={{ marginBottom: 0 }}
-            name="confirm_password"
+    
+        <div style={{marginBottom: "40px"}}>
+          
+            <Form.Item
+            name="confirmPassword"
+            dependencies={["newPassword"]}
+            hasFeedback
             rules={[
               {
                 required: true,
-                message: "Please input your Confirm Password!",
+                message: "Please confirm your password!",
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("newPassword") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The new password that you entered do not match!")
+                  );
+                },
+              }),
             ]}
+            style={{ marginBottom: "15px" }}
+            label={
+              <p style={{display: "block", color:"#6A6D7C", fontSize:"17px"}} htmlFor="email">Confirm Password</p>
+            }
           >
             <Input.Password
               type="password"
@@ -145,15 +164,13 @@ const UpdatePassword = () => {
                 background: "white",
                 borderRadius: "8px",
                 outline: "none",
+                width: "100%",
+                padding: "8px",
               }}
             />
           </Form.Item>
-          {conPassError && (
-            <label style={{ display: "block", color: "red" }} htmlFor="error">
-              {conPassError}
-            </label>
-          )}
-        </div>
+
+        </div> 
 
         <Form.Item>
           <Button

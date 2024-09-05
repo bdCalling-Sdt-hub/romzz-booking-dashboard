@@ -4,44 +4,37 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { Button, Table } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
-import sliderImg from "../../../assets/sliderImg.png";
 import NewsModal from "../../../Components/Dashboard/NewsModal";
 import ViewNewsModal from "../../../Components/Dashboard/ViewNewsModal";
 import { FaEye } from "react-icons/fa6";
-
-const data = [
-  {
-    key: 1,
-    name: "How does carpet steam cleaning...",
-    date: "09 Dec 2024",
-    image: <img src={sliderImg} height={140} width={140} />,
-  },
-
-  {
-    key: 2,
-    name: "House-sharing Concierge- Your....",
-    date: "09 Dec 2024",
-    image: <img src={sliderImg} height={140} width={140} />,
-  },
-  {
-    key: 3,
-    name: "5 Reasons Why House-Sharing is...",
-    date: "09 Dec 2024",
-    image: <img src={sliderImg} height={140} width={140} />,
-  },
-];
+import { useDeleteNewsMutation, useGetNewsQuery } from "../../../redux/apislices/DashboardSlices";
+import { imageUrl } from "../../../redux/api/apiSlice";
+import moment from "moment";
 
 const News = () => {
   const [openAddModel, setOpenAddModel] = useState(false);
   const [getNews, setGetNews] = useState(null);
   const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(
-    new URLSearchParams(window.location.search).get("page") || 1
-  );
+  const [page, setPage] = useState(1);
+  const [itemForEdit, setItemForEdit] = useState(null);  
+  // get news 
+  const {data:news , refetch} = useGetNewsQuery(page)   
+  const [DeleteNews] = useDeleteNewsMutation() 
+  const perPageSize = 10
+  const newsInfo = news?.data?.result 
+console.log(news);
 
-  const [itemForEdit, setItemForEdit] = useState(null);
+  const data = newsInfo?.map((value , index)=>({
+    key: index+1 , 
+    id:value?._id ,
+    name: value?.title, 
+    description:value?.description , 
+    date: moment(value?.createdAt).format('D MMM  YYYY'),
+    image: value?.image?.startsWith("https") ? value?.image : `${imageUrl}${value?.image}`,
+  }))
 
-  const handleDelete = (id) => {
+  const handleDelete = (id) => {  
+    console.log(id);
     Swal.fire({
       title: "Are you sure?",
       icon: "warning",
@@ -50,15 +43,29 @@ const News = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        await DeleteNews(id).then((res) => {
+if(res?.data?.success){
+  Swal.fire({
+    text: res?.data?.message,
+    icon: "success",
+    showConfirmButton: false,
+    timer: 1500,
+  }).then(() => {
+    refetch();
+  });
+}else {
+  Swal.fire({
+    title: "Oops",
+    text: res?.error?.data?.message,
+    icon: "error",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+}
+
+        })
       }
     });
   };
@@ -67,7 +74,8 @@ const News = () => {
     {
       title: "S.No",
       dataIndex: "key",
-      key: "key",
+      key: "key", 
+      render:(key)=><p>{((page-1)*perPageSize)+key}</p>
     },
     {
       title: "News Title",
@@ -84,7 +92,7 @@ const News = () => {
               gap: 12,
             }}
           >
-            <p> {img} </p>
+          <img src={img} height={140} width={140} />
             <p>{record?.name}</p>
           </div>
         );
@@ -140,7 +148,7 @@ const News = () => {
             <CiEdit size={25} />
           </button>
           <button
-            onClick={() => handleDelete()}
+            onClick={() => handleDelete(record?.id)}
             style={{
               cursor: "pointer",
               border: "none",
@@ -156,12 +164,6 @@ const News = () => {
     },
   ];
 
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
   return (
     <div>
       <div
@@ -212,20 +214,9 @@ const News = () => {
             style={{}}
             dataSource={data}
             pagination={{
-              pageSize: 10,
               defaultCurrent: parseInt(page),
-              onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              style: {
-                marginBottom: 20,
-                marginLeft: 20,
-                marginRight: 20,
-                width: "100%",
-                display: "flex",
-              },
+              onChange:(page)=>setPage(page),
+              total: news?.data?.meta?.total,
             }}
           />
         </div>
@@ -234,7 +225,9 @@ const News = () => {
       <NewsModal
         itemForEdit={itemForEdit}
         setOpenAddModel={setOpenAddModel}
-        openAddModel={openAddModel}
+        openAddModel={openAddModel} 
+        setItemForEdit={setItemForEdit} 
+        refetch={refetch}
       />
       <ViewNewsModal open={open} setOpen={setOpen} getNews={getNews} />
     </div>

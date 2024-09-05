@@ -1,15 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Form, Input } from "antd";
-import { FaRegImage } from "react-icons/fa";
+import { Button, Form, Input } from "antd";
+import { CiImageOn } from "react-icons/ci";
+import { useGetStoryQuery,  useUpdateStoryMutation } from "../../../redux/apislices/DashboardSlices";
+import Swal from "sweetalert2";
+import { imageUrl } from "../../../redux/api/apiSlice";
 
 const OurStory = () => {
-  const [imgFile, setImgFile] = useState(null);
+  const [imgFile, setImgFile] = useState(""); 
+  const [imgUrl , setImgUrl] = useState(null) 
+  const {data:story , refetch} = useGetStoryQuery()  
+  console.log(imgUrl);
+  const [updateStory] = useUpdateStoryMutation()  
+  const [form]= Form.useForm()  
+  const storyInfo = story?.data[0] 
+  console.log(storyInfo); 
+
+  useEffect(()=>{
+    form.setFieldsValue({title:storyInfo?.title , storyDetails:storyInfo?.storyDetails}) 
+    setImgUrl(storyInfo?.image?.startsWith("https") ? storyInfo?.image : `${imageUrl}${storyInfo?.image}` )
+  },[storyInfo])
 
   const handleChange = (e) => {
-    const file = e.target.files[0];
-    setImgFile(file);
-  };
+    const file = e.target.files[0]; 
+    setImgFile(file); 
+    setImgUrl(URL.createObjectURL(file))
+  }; 
+
+  const onFinish =async(values)=>{
+    console.log(values);  
+    const formData = new FormData()
+    const {images , ...otherValues} = values  
+    if(imgFile){
+      formData.append("image",imgFile)
+    }  
+    Object.entries(otherValues).forEach(([field , value])=>{
+      formData.append(field ,value)
+    })
+    const id  = storyInfo?._id 
+    await updateStory({id,formData}).then((res)=>{
+      if(res?.data?.success){
+        Swal.fire({
+            text:res?.data?.message,
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            refetch();  
+          })
+    }else{
+        Swal.fire({
+            title: "Oops",
+            text: res?.error?.data?.message,
+            icon: "error",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+      
+    }
+    })
+  }
 
   return (
     <div className="  px-4 py-2 rounded-lg pb-10 ">
@@ -36,43 +86,43 @@ const OurStory = () => {
       </div>
       {/* input feild  */}
       <div>
-        <Form layout="vertical" className=" ">
+        <Form layout="vertical" className=" w-2/3 " onFinish={onFinish} form={form}>
           <Form.Item
             className="w-full"
-            name="Heading"
+            name="title"
             label={
-              <p className="text-lg font-semibold text-[#6D6D6D] ">Heading</p>
+              <p className="text-lg font-medium text-[#6D6D6D] ">Heading</p>
             }
           >
-            <Input className="w-2/3 h-[40px]" />
+            <Input className=" h-[40px]" />
           </Form.Item>
 
           <Form.Item
             className="w-full"
-            name="discription"
+            name="storyDetails"
             label={
-              <p className="text-lg font-semibold text-[#6D6D6D] ">
+              <p className="text-lg font-medium text-[#6D6D6D] ">
                 Discription
               </p>
             }
           >
-            <Input.TextArea rows={4} className="resize-none w-2/3 h-[40px]" />
+            <Input.TextArea rows={4} className="  resize-none" />
           </Form.Item>
 
-          <div className=" w-2/3 mb-5 ">
-            <p className="text-lg font-semibold text-[#6D6D6D] pb-2 "> Image</p>
+          <div className="  mb-5 ">
+            <p className="text-lg font-medium text-[#6D6D6D] pb-2 "> Image</p>
             <div className="bg-white rounded-xl border">
               <label
                 htmlFor="image"
                 style={{ display: "block", margin: "4px 0" }}
                 className="p-3 "
               >
-                <Form.Item name="image">
-                  <div className=" flex items-center justify-center">
-                    {imgFile ? (
-                      <img src={URL.createObjectURL(imgFile)} alt="" />
+                <Form.Item name="images">
+                  <div className=" flex items-center justify-center h-[150px]">
+                    {imgUrl ? (
+                      <img src={imgUrl} alt=""  style={{height:"150px" , width:"90%" , objectFit:"contain"}}/>
                     ) : (
-                      <FaRegImage className=" text-9xl" />
+                      <CiImageOn  className=" text-9xl font-light" />
                     )}
                   </div>
                   <div className=" hidden">
@@ -92,19 +142,16 @@ const OurStory = () => {
                 </Form.Item>
               </label>
             </div>
-          </div>
-        </Form>
-      </div>
+          </div> 
 
-      <div
+          <Form.Item className=" text-end"
         style={{
           marginTop: 24,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+
         }}
       >
-        <button
+        <Button 
+        htmlType="submit"
           style={{
             height: 44,
             width: 150,
@@ -116,8 +163,13 @@ const OurStory = () => {
           }}
         >
           Save Changes
-        </button>
+        </Button>
+      </Form.Item> 
+      </Form> 
+
       </div>
+
+      
     </div>
   );
 };

@@ -6,43 +6,55 @@ import { GoQuestion } from "react-icons/go";
 import { RxCross2 } from "react-icons/rx";
 
 import FaqModal from "../../../Components/Dashboard/FaqModal";
+import { useDeleteFaqMutation, useGetFaqQuery } from "../../../redux/apislices/DashboardSlices";
+import Swal from "sweetalert2";
 
-const data = [
-  {
-    key: "1",
-    question: "What is an affiliate e-commerce website?",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-  {
-    key: "2",
-    question: "What is an affiliate e-commerce website?2",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-  {
-    key: "3",
-    question: "What is an affiliate e-commerce website?",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-  {
-    key: "4",
-    question: "What is an affiliate e-commerce website?",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-  {
-    key: "5",
-    question: "What is an affiliate e-commerce website?",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-  {
-    key: "6",
-    question: "What is an affiliate e-commerce website?",
-    ans: "convallis. Praesent felis, placerat Ut ac quis dui volutpat vitae elementum quis adipiscing malesuada tempor non ipsum non, nec vitae amet, Donec tincidunt efficitur. in In ipsum Cras turpis viverra laoreet ullamcorper placerat diam sed leo. faucibus vitae eget vitae vehicula, luctus id Lorem fringilla tempor faucibus ipsum Vestibulum tincidunt ullamcorper elit diam turpis placerat vitae Nunc vehicula, ex faucibus venenatis at, maximus commodo urna. Nam ex quis sit non vehicula, massa urna at ",
-  },
-];
+
 const FAQ = () => {
-  const [openAddModel, setOpenAddModel] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
-  const [deleteId, setDeleteId] = useState("");
+  const [openAddModel, setOpenAddModel] = useState(false); 
+  const [modalData , setModalData] = useState()
+const {data:faq , refetch} = useGetFaqQuery()   
+console.log(faq); 
+const [deleteFaq] = useDeleteFaqMutation()
+const faqInfo = faq?.data    
+
+const handleDelete = async(id) => { 
+  Swal.fire({
+    title: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      await deleteFaq(id).then((res) => {console.log(res) 
+if(res?.data?.success){
+Swal.fire({
+  text: res?.data?.message,
+  icon: "success",
+  showConfirmButton: false,
+  timer: 1500,
+}).then(() => {
+  refetch();
+});
+}else {
+Swal.fire({
+  title: "Oops",
+  text: res?.error?.data?.message,
+  icon: "error",
+  timer: 1500,
+  showConfirmButton: false,
+});
+}
+
+      })
+    }
+  });
+};
+
+console.log(faqInfo);
 
   return (
     <div className="  px-3 py-2 rounded-lg">
@@ -91,7 +103,7 @@ const FAQ = () => {
         </div>
       </div>
       <div className="bg-white py-6 px-4 rounded-md">
-        {data.map((item, index) => (
+        {faqInfo?.map((item, index) => (
           <div key={index} className="flex justify-between items-start gap-4 ">
             <div className="mt-3">
               <GoQuestion color="#00809E" size={25} />
@@ -102,24 +114,21 @@ const FAQ = () => {
               </p>
               <div className="flex justify-start items-start gap-2 border-b  py-2 px-4  rounded-xl my-4 bg-slate-50">
                 <p className="text-[#919191] leading-[24px] mb-6 ">
-                  NIFI is a comprehensive nail salon platform app designed to
-                  connect clients with top-rated nail salons and professionals,
-                  offering features like appointment booking, style exploration,
-                  and business management tools.
+               {item?.answer}
                 </p>
               </div>
             </div>
             <div className="w-[4%] flex justify-start items-center pt-4 gap-2">
               <CiEdit
                 onClick={() => {
-                  setOpenAddModel(true);
+                  setOpenAddModel(true); 
+                  setModalData(item)
                 }}
                 className="text-2xl cursor-pointer text-[#00809E]"
               />
               <RxCross2
                 onClick={() => {
-                  setDeleteId(item?._id);
-                  setShowDelete(true);
+                  handleDelete(item?._id);
                 }}
                 className="text-2xl cursor-pointer text-red-600"
               />
@@ -128,29 +137,7 @@ const FAQ = () => {
         ))}
       </div>
 
-      <FaqModal setOpenAddModel={setOpenAddModel} openAddModel={openAddModel} />
-      <Modal
-        centered
-        open={showDelete}
-        onCancel={() => setShowDelete(false)}
-        width={400}
-        footer={false}
-      >
-        <div className="p-6 text-center">
-          <p className="text-[#6A5ECC] text-center font-semibold">
-            Are you sure !
-          </p>
-          <p className="pt-4 pb-12 text-center">
-            Do you want to delete this content ?
-          </p>
-          <button
-            // onClick={handeldelete}
-            className="bg-[#00809E] py-2 px-5 text-white rounded-md"
-          >
-            Confirm
-          </button>
-        </div>
-      </Modal>
+      <FaqModal setOpenAddModel={setOpenAddModel} openAddModel={openAddModel} modalData={modalData} setModalData={setModalData} refetch={refetch} />
     </div>
   );
 };

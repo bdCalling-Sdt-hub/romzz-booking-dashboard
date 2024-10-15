@@ -6,60 +6,51 @@ import DailyOverviewChart from "./DailyOverviewChart";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { LuCalendarCheck2 } from "react-icons/lu";
 import { IoBarChartSharp } from "react-icons/io5";
+import { useGetDashboardCardQuery } from "../../../redux/apislices/DashboardSlices";
 
-function DashboardHome() {
-  const onChange = (pageNumber) => {
-    console.log("Page: ", pageNumber);
-  };
+function DashboardHome() { 
+  const {data:cardsValue} = useGetDashboardCardQuery() 
+  const cardValue = cardsValue?.data
+  console.log(cardValue); 
+
 
   const data = [
     {
       name: "Total User",
-      count: "20.10K",
-      icon: <HiMiniUserGroup color="#00809E" size={24} />,
-      bgColor: "#EFEFEF",
-      textColor: "#00809E",
-    },
+      count: Math.round(cardValue?.totalUsers),
+    }, 
+
     {
-      name: "Total Rents",
-      count: "920",
-      icon: <LuCalendarCheck2 color="#FF9773" size={24} />,
-      textColor: "#FF9773",
-      bgColor: "#EFEFEF",
-    },
+      name: "Total Bookings",
+      count:  Math.round(cardValue?.totalBookings)
+      ,
+    }, 
+
     {
       name: "Total Revenue",
-      count: "150.10K",
-      icon: <IoBarChartSharp color="#00B047" size={24} />,
-      textColor: "#00B047",
-      bgColor: "#EFEFEF",
-    },
+      count:  Math.round(cardValue?.totalRevenue),
+    }, 
+
     {
-      name: "Monthly User",
-      count: "20.10K",
-      icon: <HiMiniUserGroup color="#00809E" size={24} />,
-      bgColor: "#EFEFEF",
-      textColor: "#00809E",
-    },
+      name: "Today User",
+      count:  Math.round(cardValue?.todayUsers),
+    }, 
+
     {
-      name: "Monthly Rents",
-      count: "920",
-      icon: <LuCalendarCheck2 color="#FF9773" size={24} />,
-      textColor: "#FF9773",
-      bgColor: "#EFEFEF",
-    },
+      name: "Today Bookings",
+      count:  Math.round(cardValue?.todayBookings) ,
+    }, 
+
     {
-      name: "Monthly Revenue",
-      count: "150.10K",
-      icon: <IoBarChartSharp color="#00B047" size={24} />,
-      textColor: "#00B047",
-      bgColor: "#EFEFEF",
+      name: "Today Revenue",
+      count:  Math.round(cardValue?.todayRevenue)
+      ,
     },
   ];
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-3 items-center mt-7 mb-10">
+      <div className="grid grid-cols-3 gap-5 items-center mt-7 mb-10">
         {data.map((item, index) => (
           <div
             key={index}
@@ -72,7 +63,7 @@ function DashboardHome() {
           >
             <div
               style={{
-                background: `${item.bgColor}`,
+                background: "#EFEFEF",
                 width: "44px",
                 height: "44px",
                 borderRadius: "100%",
@@ -81,8 +72,11 @@ function DashboardHome() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-            >
-              {item?.icon}
+            > 
+            {
+              index === 0 ? <HiMiniUserGroup color="#00809E" size={24} /> : index === 1 ? <LuCalendarCheck2 color="#FF9773" size={24} /> : index === 2  ?<IoBarChartSharp color="#00B047" size={24} /> :  index === 3 ? <HiMiniUserGroup color="#00809E" size={24} /> : index === 4 ? <LuCalendarCheck2 color="#FF9773" size={24} /> : index === 5 ? <IoBarChartSharp color="#00B047" size={24} /> :""
+            }
+           
             </div>
             <div
               style={{
@@ -110,10 +104,10 @@ function DashboardHome() {
                   style={{
                     fontSize: "1.6em",
                     fontWeight: "600",
-                    color: `${item?.textColor}`,
+                    color: `${ index === 0 ? "#00809E" : index === 1 ? "#FF9773" : index === 2  ? "#00B047" :  index === 3 ? "#00809E" : index === 4 ? "#FF9773" : index === 5 ? "#00B047" :""}`,
                   }}
                 >
-                  {item.count} +
+                  {item.count}
                 </p>
               </div>
             </div>
@@ -136,7 +130,7 @@ function DashboardHome() {
             borderRadius: "15px",
             backgroundColor: "#fff",
             width: "100%",
-            height: "370px",
+            height: "450px",
             padding: "10px 20px 20px 20px",
           }}
         >
@@ -147,7 +141,7 @@ function DashboardHome() {
             borderRadius: "15px",
             backgroundColor: "#fff",
             width: "100%",
-            height: "370px",
+            height: "450px",
             padding: "10px 20px 20px 20px",
           }}
         >

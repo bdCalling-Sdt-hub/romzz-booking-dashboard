@@ -2,20 +2,21 @@
 import { Button, Pagination } from "antd";
 import { useGetNotificationQuery, useUpdateReadAllNotificationMutation } from "../../redux/apislices/DashboardSlices";
 import moment from "moment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Notification = () => {  
   const [page, setPage] = useState(1)
-  const {data:notifications} = useGetNotificationQuery(page)   
-  const [updateReadAllNotification] = useUpdateReadAllNotificationMutation()
+  const {data:notifications , refetch} = useGetNotificationQuery(page)   
+  const [updateReadAllNotification , {isSuccess}] = useUpdateReadAllNotificationMutation()
 
-  console.log(notifications); 
+  useEffect(()=>{
+    if(isSuccess){
+      refetch()
+    }
+  },[isSuccess , refetch])
 
   const handleReadAll = async()=>{
-
-    await updateReadAllNotification().then((res)=>{
-      console.log(res);
-    })
+    await updateReadAllNotification()
   }
   return (
     <div>
@@ -67,7 +68,7 @@ const Notification = () => {
         <div>
           {
             notifications?.data?.result?.map((value , index ) =>  
-          <div key={index} className={ ` ${value?.isRead ? "bg-white" : "bg-[#e6f2f5]"  } shadow-lg p-4 rounded-lg    `} > 
+          <div key={index} className={ ` ${value?.isRead ? "bg-white" : "bg-[#e6f2f5]"  } shadow-lg p-4 rounded-lg  mb-2   `} > 
               <div 
           className=" flex  justify-between "
           > 
@@ -96,8 +97,6 @@ const Notification = () => {
               {moment(value?.createdAt).format('D MMM YYYY , hh:mm a')}
               </span>
             </p> 
-
-            <p className=" underline underline-offset-4 text-[#00809E] ">view</p>
      
           </div>
           </div>

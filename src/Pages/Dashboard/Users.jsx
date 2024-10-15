@@ -7,6 +7,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import UserModal from "../../Components/Dashboard/UserModal";
 import { useGetUsersQuery, useUpdateUserStatusMutation } from "../../redux/apislices/DashboardSlices";
 import { imageUrl } from "../../redux/api/apiSlice";
+import { useNavigate } from "react-router-dom";
 
 const Users = () => { 
  
@@ -16,10 +17,11 @@ const Users = () => {
   const [page, setPage] = useState(1)
   const {data:users , refetch} = useGetUsersQuery({page:page ,search:searchValue})   
   const [updateUserStatus] = useUpdateUserStatusMutation() 
-  const [userStatus , setUserStatus ]= useState("") 
+  const [userStatus , setUserStatus ]= useState("")  
+  const navigate = useNavigate()
   const pagePerSize = 10 
-  console.log(users);
-  const usersInfo = users?.data?.result  
+  const usersInfo = users?.data?.result   
+  console.log(usersInfo);
 
   const data =usersInfo?.map((value , index) =>({
     key: index+1, 
@@ -30,15 +32,20 @@ const Users = () => {
     },
     email: value?.email,
 contact:value?.phoneNumber ,
-    location: value?.permanentAddress,
-status:value?.status ,
-  })) 
+    location: value?.permanentLocation?.address,
+status:value?.isBlocked ,
+  }))   
+
+
+  const handleDetails =(id)=>{ 
+    navigate(`/user/${id}`)
+  }
 
   const handleStatus=(record)=>{
- const newStatus  = record?.status === "active" ? "block" : "unblock" 
+ const newStatus  = record?.status === false ? "block" : "unblock" 
  setUserStatus(newStatus) 
  handleUpdateStatus(record , newStatus)
-  }
+  } 
 
 
   const handleUpdateStatus = async(record , newStatus ) => { 
@@ -47,7 +54,6 @@ status:value?.status ,
       id:record?.id ,
       status: newStatus ,
     } 
-    console.log(data);  
     Swal.fire({
       text: `Are you sure you want to ${newStatus} this user?`,
       icon: "warning",
@@ -104,7 +110,7 @@ status:value?.status ,
               gap: 12,
             }}
           >
-            <p> <img src={user?.img} height={48} width={48} />  </p>
+            <p> <img src={user?.img} style={{borderRadius:"100%" , height:40 , width:40 , objectFit:"cover" }} />  </p>
 
             <p
               style={{
@@ -152,7 +158,7 @@ status:value?.status ,
           }}
         >
           <button
-            onClick={() => {setOpen(true) , setModalData(record)} }
+            onClick={() => {handleDetails(record?.id)} }
             style={{
               cursor: "pointer",
               border: "none",
@@ -165,7 +171,7 @@ status:value?.status ,
           <div>
             <button onClick={() => {handleStatus(record)}}> 
               {
-                record?.status === "active" ? <MdPerson  size={25} className=" text-[#00809E]" /> : <MdPersonOff  size={25} className=" text-red-500" />
+                record?.status === false ? <MdPerson  size={25} className=" text-[#00809E]" /> : <MdPersonOff  size={25} className=" text-red-500" />
               }
               
             </button>

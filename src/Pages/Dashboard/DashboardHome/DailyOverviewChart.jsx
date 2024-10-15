@@ -10,102 +10,22 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { useGetRevenueChartQuery } from "../../../redux/apislices/DashboardSlices";
 
-const DailyOverviewChart = () => {
-  const data = [
-    {
-      name: "Jan",
-      uv: 4000,
-      pv: 2400,
-      tv: "12k",
-      amt: 10,
-    },
-    {
-      name: "Feb",
-      uv: 3000,
-      pv: 1398,
-      tv: 1200,
-      amt: 20,
-    },
-    {
-      name: "Mar",
-      uv: 2000,
-      pv: 9800,
-      tv: 1200,
-      amt: 30,
-    },
-    {
-      name: "Apr",
-      uv: 2780,
-      pv: 3908,
-      tv: 1200,
-      amt: 40,
-    },
-    {
-      name: "May",
-      uv: 1890,
-      pv: 4800,
-      tv: 1200,
-      amt: 50,
-    },
-    {
-      name: "Jun",
-      uv: 2390,
-      pv: 3800,
-      tv: 1200,
-      amt: 60,
-    },
-    {
-      name: "Jul",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 70,
-    },
-    {
-      name: "Aug",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 80,
-    },
-    {
-      name: "Sep",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 90,
-    },
-    {
-      name: "Oct",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 100,
-    },
-    {
-      name: "Nov",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 110,
-    },
-    {
-      name: "Dec",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 120,
-    },
-  ];
+const DailyOverviewChart = () => {  
+  const [year, setYear] = useState(2024); 
+  const {data:revenues} = useGetRevenueChartQuery(year)  
+  const revenuesData = revenues?.data
+  console.log(year); 
 
-  const [year, setYear] = useState(2024);
+  const data = revenuesData?.map((value)=>({
+    name: (value?.month).slice(0,3),
+    uv: value?.totalRevenue,
+  }))
+
+
 
   const items = [
-    {
-      label: 2023,
-      key: "2023",
-    },
     {
       label: 2024,
       key: "2024",
@@ -117,6 +37,22 @@ const DailyOverviewChart = () => {
     {
       label: 2026,
       key: "2026",
+    },
+    {
+      label: 2027,
+      key: "2027",
+    },
+    {
+      label: 2028,
+      key: "2028",
+    },
+    {
+      label: 2029,
+      key: "2029",
+    },
+    {
+      label: 2030,
+      key: "2030",
     },
   ];
 
@@ -149,7 +85,7 @@ const DailyOverviewChart = () => {
             color: "#555555",
           }}
         >
-          Monthly Earning
+          Total Revenue
         </p>
         <Dropdown menu={{ items, onClick }}>
           <p
@@ -168,7 +104,7 @@ const DailyOverviewChart = () => {
           </p>
         </Dropdown>
       </div>
-      <ResponsiveContainer width={"100%"} height={300}>
+      <ResponsiveContainer width={"100%"} height={350}>
         <LineChart data={data} barGap={100}>
           <CartesianGrid horizontal vertical={false} />
           <XAxis

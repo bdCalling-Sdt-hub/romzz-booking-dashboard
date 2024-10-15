@@ -81,7 +81,7 @@ if(res?.data?.success){
               gap: 12,
             }}
           > 
-          <img src={img} height={140} width={140} />
+          <img src={img}  style={{ height:"50px" , width:"80px" , objectFit:"contain"}} />
           </div>
         );
       },
@@ -136,13 +136,6 @@ if(res?.data?.success){
       ),
     },
   ];
-
-  const handlePageChange = (page) => {
-    setPage(page);
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  };
 
   return (
     <div>

@@ -1,28 +1,57 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import JoditEditor from "jodit-react";
 import Swal from "sweetalert2";
-import { useGetTermsQuery, useUpdateTermsMutation } from "../../../redux/apislices/DashboardSlices";
+import { useGetTermsQuery, usePostTermsMutation, useUpdateTermsMutation } from "../../../redux/apislices/DashboardSlices";
 
 const Terms = () => {
   const editor = useRef(null); 
-  const {data:terms , refetch} = useGetTermsQuery()  
+  const {data:terms , refetch} = useGetTermsQuery()   
+  const [postTerms] = usePostTermsMutation()
   const [updateTerms] = useUpdateTermsMutation()
   // console.log(terms?.data[0]);  
   const termsContents = terms?.data[0]
   const [content, setContent] = useState("");
-  const [isLoading, seLoading] = useState(false); 
 
   useEffect(()=>{ 
     setContent(termsContents?.termsContent)
   },[termsContents]) 
 
-  const handleSubmit =async()=>{
- const data = {
-  createdBy: termsContents?._id ,
-  termsContent:content
- } 
- await updateTerms(data).then((res)=>{
-  console.log(res); 
+  const handleSubmit =async()=>{  
+
+    if(termsContents?._id){
+
+      const data = {
+       createdBy: termsContents?._id ,
+       termsContent:content
+      }  
+      await updateTerms(data).then((res)=>{
+       console.log(res); 
+       if(res?.data?.success){
+         Swal.fire({
+             text:res?.data?.message,
+             icon: "success",
+             showConfirmButton: false,
+             timer: 1500,
+           }).then(() => {
+             refetch(); 
+             
+           })
+     }else{
+         Swal.fire({
+             title: "Oops",
+             text: res?.error?.data?.message,
+             icon: "error",
+             timer: 1500,
+             showConfirmButton: false,
+           });
+       
+     }
+      })
+    } 
+    else{ 
+
+      const data = {termsContent:content}
+ await postTerms(data).then((res)=>{
   if(res?.data?.success){
     Swal.fire({
         text:res?.data?.message,
@@ -44,6 +73,7 @@ const Terms = () => {
   
 }
  })
+    }
   }
 
   const config = {

@@ -5,15 +5,19 @@ import {useGetSingleReqQuery, useUpdateApproveMutation, useUpdateRejectMutation}
 import moment from "moment";
 import { Button } from "antd";
 import Swal from "sweetalert2";
+import { imageUrl } from "../../redux/api/apiSlice";
 
 
 const Properties = () => { 
   const {id} = useParams()  
   const {data:properties} = useGetSingleReqQuery(id)  
-  const propertiesInfo = properties?.data  
+  const propertiesInfo = properties?.data   
+
   const [updateApprove ] = useUpdateApproveMutation() 
   const [updateReject] = useUpdateRejectMutation()
- const navigate = useNavigate()
+ const navigate = useNavigate() 
+
+ console.log(properties);
 
   const handleApprove = async()=>{
     await updateApprove(id).then((res) => {
@@ -26,7 +30,7 @@ const Properties = () => {
           }).then(() => {
           
             window.location.reload()
-            // navigate("/post-request") 
+            navigate("/post-request") 
           })
     }else{
         Swal.fire({
@@ -51,7 +55,7 @@ const Properties = () => {
             timer: 1500,
           }).then(() => {
             window.location.reload()
-            // navigate("/post-request") 
+            navigate("/post-request") 
           })
     }else{
         Swal.fire({
@@ -81,11 +85,17 @@ const Properties = () => {
 
       <div className=" py-8">
         <div className="py-5 mx-auto text-center">
-          <img className="w-72 h-40  mx-auto mb-2" src={propertiesInfo?.propertyImages[0]} alt="" />
+          <img className="w-80 h-44  mx-auto mb-2 rounded-md" src={propertiesInfo?.propertyImages[0]?.startsWith("https") ? propertiesInfo?.propertyImages[0] : `${imageUrl}${propertiesInfo?.propertyImages[0]}` } alt="" />
           <p className="text-2xl font-semibold py-1">
-            {propertiesInfo?.propertyTitle}
+            {propertiesInfo?.title}
           </p>
-          <p className="text-lg font-semibold text-[#00809E]">${propertiesInfo?.price}/per {propertiesInfo?.priceType}</p>
+          <p className="text-xl font-semibold text-[#00809E]">${propertiesInfo?.price} <span className="text-[14px]"> {propertiesInfo?.priceType === "day"
+                        ? `/pd`
+                        : propertiesInfo?.priceType === "week"
+                        ? "/pw"
+                        : propertiesInfo?.priceType === "month"
+                        ? "/pm"
+                        : "/py"}</span></p>
         </div>
 
         <div className=" w-full flex justify-center items-center">
@@ -209,7 +219,7 @@ const Properties = () => {
               className="flex items-center gap-1 text-[16px] font-medium">
               {" "}
               <p className="text-[#5C5C5C]">Guest type : </p>{" "}
-              <p className="text-[#00B047]">{propertiesInfo?. guestType}  </p>{" "}
+              <p className="text-[#00B047]">{propertiesInfo?.guestType}  </p>{" "}
             </div> 
 
             <div
@@ -232,7 +242,7 @@ const Properties = () => {
                   className=" flex items-center gap-2 bg-[#FFDFD4] text-black w-[150px] h-[40px]  px-3  rounded-lg font-semibold"
                 >
                   {" "}
-                  <span> {value?.icon}</span> <span> {value?.name}</span>{" "}
+                  <span> <img src={ value?.icon?.startsWith("https") ? value?.icon : `${imageUrl}${value?.icon}` } height={30}  width={30} alt="" /> </span> <span> {value?.name}</span>{" "}
                 </button>
               ))}
             </div>
@@ -240,9 +250,9 @@ const Properties = () => {
         </div>
 
         <div className=" flex items-center justify-center gap-6 mt-8">
-          <Button  
+          <button  
            disabled={propertiesInfo?.status === "approve"} 
-           className="disabled:bg-[#80C738]/50 bg-[#80C738]" 
+           className="disabled:bg-[#80C738]/50 bg-[#80C738] hover:bg-[#80C738]" 
            onClick={()=>handleApprove()}
           style={{ 
     
@@ -252,9 +262,9 @@ const Properties = () => {
             borderRadius:"10px"
           }}>
             Approve{" "}
-          </Button>
+          </button>
 
-          <Button  
+          <button  
           disabled={propertiesInfo?.status === "reject"} 
           className="disabled:bg-[#DF3232]/50 bg-[#DF3232]" 
           onClick={()=>handleReject()}
@@ -267,7 +277,7 @@ const Properties = () => {
           }}
           >
             Reject{" "}
-          </Button>
+          </button> 
         </div>
       </div>
     </div>

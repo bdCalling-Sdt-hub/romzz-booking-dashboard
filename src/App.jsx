@@ -8,7 +8,6 @@ import Login from "./Pages/Auth/Login";
 import UpdatePassword from "./Pages/Auth/UpdatePassword";
 import NotFound from "./404";
 import PrivateRoute from "./routes/PrivateRoute";
-
 import MakeAdmin from "./Pages/Dashboard/MakeAdmin";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import PostRequest from "./Pages/Dashboard/PostRequest";
@@ -19,22 +18,22 @@ import FAQ from "./Pages/Dashboard/Settings/FAQ";
 import EditSlider from "./Pages/Dashboard/Settings/EditSlider";
 import Users from "./Pages/Dashboard/Users";
 import Properties from "./Pages/Dashboard/Properties";
-import Reservations from "./Pages/Dashboard/Reservations";
 import Transactions from "./Pages/Dashboard/Transactions";
 import GetInTouch from "./Pages/Dashboard/Settings/GetInTouch";
-import SocialMedia from "./Pages/Dashboard/Settings/SocialMedia";
 import News from "./Pages/Dashboard/Settings/News";
 import WebsiteReview from "./Pages/Dashboard/Settings/WebsiteReview";
 import Support from "./Pages/Dashboard/Support";
 import Facilities from "./Pages/Dashboard/Settings/Facilities";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
+import Packages from "./Pages/Dashboard/Packages";
+import Subscribers from "./Pages/Dashboard/Subscribers"; 
+import User from "./Pages/Dashboard/user";
+
 
 function App() {
   return (
     <>
       <div className="maincontainer"> 
-        <Provider store={store} >  
+       
         <Router>
           <Routes>
             <Route
@@ -50,20 +49,20 @@ function App() {
               <Route path="/post-request" element={<PostRequest />} />
               <Route path="/users" element={<Users />} />
               <Route path="/properties/:id" element={<Properties />} />
-              <Route path="/reservations" element={<Reservations />} />
+              <Route path="/user/:id" element={<User/>} />
               <Route path="/transactions" element={<Transactions />} />
-
               <Route path="/notification" element={<Notification />} />
-              <Route path="/setting" element={<EditSlider />} />
+              <Route path="/setting" element={<OurStory />} />
               <Route path="/make-admin" element={<MakeAdmin />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/subscribers" element={<Subscribers />} />
+              <Route path="/packages" element={<Packages />} />
               <Route path="/admin-profile" element={<AdminProfile />} />
 
               <Route path="/our-story" element={<OurStory />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/get-in-touch" element={<GetInTouch />} />
-              <Route path="/social-media" element={<SocialMedia />} />
               <Route path="/edit-slider" element={<EditSlider />} />
       
               <Route path="/facilities" element={<Facilities />} />
@@ -78,7 +77,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
-        </Provider>
+     
     
       </div>
     </>

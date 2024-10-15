@@ -138,9 +138,9 @@ const FacilityModal = ({open ,setOpen ,modalData ,setModalData , refetch}) => {
     style={{ display: "block", margin: "4px 0" }}
     className="p-3 border"
   >
-    <div className="flex justify-center items-center w-full h-full border-dashed border border-black py-10">
+    <div className="flex justify-center items-center w-full  h-[50px] border-dashed border border-black py-8">
       {imgUrl ? (
-        <img src={imgUrl} alt="" />
+        <img src={imgUrl} alt="" style={{height:"50px" , width:"100%" , objectFit:"contain" , padding:"10px"}} />
       ) : (
         <FaRegImage className="text-2xl" />
       )}
@@ -152,7 +152,7 @@ const FacilityModal = ({open ,setOpen ,modalData ,setModalData , refetch}) => {
     onInput={handleChange}
     style={{
       border: "1px solid #E0E4EC",
-      height: "52px",
+      height: "15px",
       background: "white",
       borderRadius: "8px",
       outline: "none",

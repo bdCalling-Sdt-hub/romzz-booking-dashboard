@@ -3,9 +3,10 @@ import { getFromLocalStorage } from "../../Util/local-storage";
 const token = getFromLocalStorage("bookingToken")
 export const romzzApi = createApi({
     reducerPath: 'romzzApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://192.168.10.18:5000/api/v1'  ,
+    baseQuery: fetchBaseQuery({ baseUrl: 'http://192.168.10.195:5000/api/v1'  ,
          headers:{Authorization: `Bearer ${token}`}}),  
          endpoints:()=>({})
     }) 
 
-export const imageUrl = "http://192.168.10.18:5000/"
+export const imageUrl = "http://192.168.10.195:5000/" 
+export const socketUrl = "http://192.168.10.195:5000/"

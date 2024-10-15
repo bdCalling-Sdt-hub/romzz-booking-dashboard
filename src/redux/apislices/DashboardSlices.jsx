@@ -2,11 +2,34 @@ import { romzzApi } from "../api/apiSlice";
 
 
 const DashboardSlices = romzzApi.injectEndpoints({
-    endpoints:(builder)=>({ 
- 
+    endpoints:(builder)=>({  
+
+        // Dashboard 
+        //  card  
+       getDashboardCard:builder.query({
+        query:()=>"/dashboard/metrics"
+       }) , 
+
+    //     charts 
+        getUsersChart:builder.query({
+            query:(year)=>{
+        return{
+            url:`/dashboard/users-count/${year}` ,
+        }
+            }
+        }) ,  
+
+        getRevenueChart:builder.query({
+            query:(year)=>{
+                return{
+                    url:`/dashboard/revenue-count/${year}`
+                }
+            }
+        }) ,
+
         // Post Request   
-getRequest:builder.query({
-    query:({searchValue ,page})=>{  
+        getRequest:builder.query({
+         query:({searchValue ,page})=>{  
         console.log(searchValue);
         const params = new URLSearchParams()  
         if(page)params.append("page" , page)
@@ -48,7 +71,15 @@ getUsers:builder.query({
             url:`/users?${params.toString()}`
         }
     }
-}) ,  
+}) ,   
+
+getUserId: builder.query({
+ query:(id)=>{
+    return{
+        url:`/users/profile/${id}`
+    }
+ }
+}) , 
 
 updateUserStatus:builder.mutation({
     query:(data)=>({
@@ -56,7 +87,30 @@ updateUserStatus:builder.mutation({
  method:"PATCH"  ,
  body: data
     })
-}) ,
+}) ,  
+
+getUserProperties:builder.query({
+    query:(value)=>{ 
+        const params = new URLSearchParams() 
+        if(value?.type)params.append("type",value?.type)
+        return{
+            url:`/properties/user-properties/${value?.id}?${params.toString()}`
+        }
+    }
+}) , 
+
+// transactions  
+ getTransactions: builder.query({
+    query:({page , searchTerm, status})=>{ 
+        const params = new URLSearchParams() 
+        if(page)params.append("page" , page) 
+            if(searchTerm)params.append("searchTerm", searchTerm) 
+                if(status)params.append("status",status)
+        return{
+            url:`/bookings?${params.toString()}`
+        }
+    }
+ }) ,
  
 // Notification  
 getNotification:builder.query({
@@ -110,8 +164,34 @@ DeleteNews:builder.mutation({
         url:`/blogs/${id}` ,
         method:"DELETE"
     })
+}) , 
+
+// subscriber   
+getSubscriber:builder.query({
+    query:(page)=>{ 
+        const params = new URLSearchParams() 
+        if(page)params.append("page", page)
+        return{
+            url:`/subscriptions?${params.toString()}`
+        }
+    }
 }) ,
 
+// packages  
+
+getPackages:builder.query({
+    query:()=>"/pricing-plans"
+}) , 
+
+updatePackages:builder.mutation({
+    query:(value)=>{
+        return{
+            url:`/pricing-plans/${value?.id}` ,
+            method:"PATCH" ,
+            body: value
+        }
+    }
+}) ,
 // make Admin  
 getAdmin:builder.query({
     query:(page)=> {  
@@ -164,7 +244,17 @@ updateSlider:builder.mutation({
 // our story  
 getStory: builder.query({
     query:()=>"/our-story"
-}) ,   
+}) ,    
+
+createStory:builder.mutation({
+    query:(formData)=>{
+        return{
+            url:"/our-story" ,
+            method:"POST" ,
+            body:formData
+        }
+    }
+}) ,
 
 updateStory:builder.mutation({
     query:({id,formData})=>{
@@ -179,7 +269,16 @@ updateStory:builder.mutation({
 // ---terms---  
 getTerms:builder.query({
     query:()=>"/terms-and-conditions"
-}) , 
+}) ,  
+
+postTerms:builder.mutation({ 
+    query:(value)=>{ 
+    return{
+        url:"/terms-and-conditions" ,
+        method:"POST" ,
+        body:value
+    } }
+}) ,
 
 updateTerms:builder.mutation({
     query:(value)=>({
@@ -271,21 +370,8 @@ updateStatus:builder.mutation({
         }
     }
 }) , 
-// ---social media ---  
-getSocialMedia:builder.query({
-    query:()=>"/medias"
-}) , 
-updateSocialMedia:builder.mutation({
-    query:(data) =>{
-        return{
-            url:`/medias/${data?.id}` ,
-            method:"PATCH" ,
-            body: data?.value
-        }
-    }
-}) ,
 
     })
  }) 
 
- export const {useGetRequestQuery  ,useGetSingleReqQuery ,useUpdateApproveMutation , useUpdateRejectMutation , useGetUsersQuery , useUpdateUserStatusMutation , useGetSliderQuery , useDeleteSliderMutation ,useCreateSliderMutation ,useUpdateSliderMutation , useUpdateTermsMutation ,useGetTermsQuery , useGetStoryQuery ,useUpdateStoryMutation ,useCreateFaqMutation ,useDeleteFaqMutation ,useGetFaqQuery ,useUpdateFaqMutation , useCreateFacilityMutation ,useDeleteFacilityMutation ,useGetFacilityQuery ,useUpdateFacilityMutation ,useGetEmailQuery , useGetFeedbackQuery ,useUpdateStatusMutation , useGetSocialMediaQuery ,useUpdateSocialMediaMutation ,useGetAdminQuery , useCreateAdminMutation  , useCreateNewsMutation ,useDeleteNewsMutation ,useGetNewsQuery ,useUpdateNewsMutation ,useGetNotificationQuery ,useUpdateReadNotificationMutation , useUpdateReadAllNotificationMutation } = DashboardSlices
+ export const { useGetDashboardCardQuery , useGetRevenueChartQuery , useGetUsersChartQuery , useGetRequestQuery  ,useGetSingleReqQuery ,useUpdateApproveMutation , useUpdateRejectMutation , useGetUsersQuery , useUpdateUserStatusMutation , useGetSliderQuery , useDeleteSliderMutation ,useCreateSliderMutation ,useUpdateSliderMutation , useUpdateTermsMutation ,useGetTermsQuery , useGetStoryQuery ,  useCreateStoryMutation ,useUpdateStoryMutation ,useCreateFaqMutation ,useDeleteFaqMutation ,useGetFaqQuery ,useUpdateFaqMutation , useCreateFacilityMutation ,useDeleteFacilityMutation ,useGetFacilityQuery ,useUpdateFacilityMutation ,useGetEmailQuery , useGetFeedbackQuery ,useUpdateStatusMutation , useGetAdminQuery , useCreateAdminMutation  , useCreateNewsMutation ,useDeleteNewsMutation ,useGetNewsQuery ,useUpdateNewsMutation ,useGetNotificationQuery ,useUpdateReadNotificationMutation , useUpdateReadAllNotificationMutation , useGetTransactionsQuery , useGetSubscriberQuery ,useGetPackagesQuery ,useUpdatePackagesMutation , useGetUserIdQuery ,useGetUserPropertiesQuery , usePostTermsMutation } = DashboardSlices

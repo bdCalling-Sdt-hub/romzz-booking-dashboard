@@ -146,9 +146,9 @@ const NewsModal = ({ itemForEdit, setOpenAddModel, openAddModel , setItemForEdit
                 className="p-3 border"
               >
                 <Form.Item name="images">
-                  <div className="flex justify-center items-center w-full h-full border-dashed border border-black py-10">
+                  <div className="flex justify-center items-center w-full  h-[150px] border-dashed border border-black py-10">
                     {imgUrl ? (
-                      <img src={imgUrl} alt="" />
+                      <img src={imgUrl} alt="" style={{height:"150px" , width:"100%" , objectFit:"contain" , padding:"10px"}} />
                     ) : (
                       <FaRegImage className="text-2xl" />
                     )}

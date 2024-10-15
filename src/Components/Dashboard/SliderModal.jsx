@@ -145,9 +145,9 @@ const SliderModal = ({ itemForEdit, setOpenAddModel, openAddModel  ,refetch , se
                 className="p-3 border"
               >
                 <Form.Item name="images">
-                  <div className="flex justify-center items-center w-full h-full border-dashed border border-black py-10">
+                  <div className="flex justify-center items-center w-full h-[200px] border-dashed border border-black ">
                     {imgURl ? (
-                      <img src={imgURl} alt="" />
+                      <img src={imgURl} alt="" style={{height:"200px" , width:"100%" , objectFit:"contain" , padding:"10px"}} />
                     ) : (
                       <FaRegImage className="text-2xl" />
                     )}

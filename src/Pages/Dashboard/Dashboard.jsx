@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../assets/logo.png";
 import user from "../../assets/user.png";
@@ -10,10 +10,10 @@ import {
   FaRegNewspaper,
 } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
-import { MdOutlineDashboard, MdOutlineSupportAgent } from "react-icons/md";
+import { MdOutlineDashboard, MdOutlineSubscriptions, MdOutlineSupportAgent } from "react-icons/md";
 import { BiBuildings } from "react-icons/bi";
 import { GoBell } from "react-icons/go";
-import { TbCategoryPlus } from "react-icons/tb";
+import { TbCategoryPlus, TbPackages } from "react-icons/tb";
 import { FiUserPlus, FiLogOut, FiUsers } from "react-icons/fi";
 import { VscBook, VscFeedback } from "react-icons/vsc";
 import { RiNotification2Line } from "react-icons/ri";
@@ -29,9 +29,9 @@ const { Header, Sider, Content } = Layout;
 const Dashboard = () => {
   const [setting, setSetting] = useState(false);
   const { pathname } = useLocation(); 
-  const {data:Notifications} = useGetNotificationQuery() 
+  const {data:Notifications , refetch} = useGetNotificationQuery() 
   const totalNotification = Notifications?.data?.result?.filter(item => item?.isSeen === false).length 
-const [updateReadNotification] = useUpdateReadNotificationMutation()
+const [updateReadNotification , {isSuccess}] = useUpdateReadNotificationMutation()
   const {data:AdminInfo} = useGetProfileQuery()   
   console.log(AdminInfo);
   const user  = AdminInfo?.data  
@@ -39,7 +39,14 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
 
  const handleUpdateNotification =async() =>{
  await updateReadNotification()
- }
+ } 
+
+ useEffect(()=>{
+  if(isSuccess){
+    refetch()
+  }
+ },[isSuccess , refetch]) 
+
 
   const linkItems = [
     {
@@ -58,12 +65,6 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
       path: "/users",
       icon: <FiUsers size={24} />,
     },
-
-    {
-      title: "Reservations",
-      path: "/reservations",
-      icon: <FaRegAddressCard size={24} />,
-    },
     {
       title: "Transactions",
       path: "/transactions",
@@ -79,7 +80,17 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
       path: "/news",
       icon: <FaRegNewspaper size={24} />,
     },
+    {
+      title: "Packages",
+      path: "/packages",
+      icon: <TbPackages size={24} />,
+    },
 
+    {
+      title: "Subscribers",
+      path: "/subscribers",
+      icon: <MdOutlineSubscriptions  size={24} />,
+    },
     {
       title: "Add admin",
       path: "/make-admin",
@@ -92,10 +103,10 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
       icon: <IoSettingsOutline size={24} />,
       option: true,
       optionsItems: [
-        {
-          title: "Edit Slider",
-          path: "/edit-slider",
-        },
+        // {
+        //   title: "Edit Slider",
+        //   path: "/edit-slider",
+        // },
         {
           title: "Our Story",
           path: "/our-story",
@@ -119,10 +130,6 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
         {
           title: "Get In Touch",
           path: "/get-in-touch",
-        },
-        {
-          title: "Social Media",
-          path: "/social-media",
         },
       ],
     },
@@ -413,9 +420,9 @@ const [updateReadNotification] = useUpdateReadNotificationMutation()
           </div>
         </Header>
 
-        <Content
+        <Content 
           style={{
-            marginTop: "85px",
+            marginTop: "78px",
             // marginBottom: "20px",
             marginLeft: "16%",
             // marginRight: "10px",

@@ -14,8 +14,9 @@ const ViewNewsModal = ({ open, setOpen, getNews }) => {
         footer={false}
       >
         <div className="p-6 ">
-          <div className="mx-auto  w-[120px] my-6">
-            <p> {getNews?.image} </p>
+          <div className="mx-auto  w-[200px] my-6"> 
+            <img src={getNews?.image} alt=""  className="w-[2000px] h-[120px] rounded-lg" />
+ 
           </div>
 
           <Form

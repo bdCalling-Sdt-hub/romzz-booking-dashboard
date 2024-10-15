@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Button, Form, Input } from "antd";
 import { CiImageOn } from "react-icons/ci";
-import { useGetStoryQuery,  useUpdateStoryMutation } from "../../../redux/apislices/DashboardSlices";
+import { useCreateStoryMutation, useGetStoryQuery,  useUpdateStoryMutation } from "../../../redux/apislices/DashboardSlices";
 import Swal from "sweetalert2";
 import { imageUrl } from "../../../redux/api/apiSlice";
 
@@ -10,15 +10,15 @@ const OurStory = () => {
   const [imgFile, setImgFile] = useState(""); 
   const [imgUrl , setImgUrl] = useState(null) 
   const {data:story , refetch} = useGetStoryQuery()  
-  console.log(imgUrl);
+  const [createStory] = useCreateStoryMutation()
   const [updateStory] = useUpdateStoryMutation()  
   const [form]= Form.useForm()  
   const storyInfo = story?.data[0] 
-  console.log(storyInfo); 
+  console.log(story); 
 
   useEffect(()=>{
     form.setFieldsValue({title:storyInfo?.title , storyDetails:storyInfo?.storyDetails}) 
-    setImgUrl(storyInfo?.image?.startsWith("https") ? storyInfo?.image : `${imageUrl}${storyInfo?.image}` )
+    setImgUrl(storyInfo ? storyInfo?.image?.startsWith("https") ? storyInfo?.image : `${imageUrl}${storyInfo?.image}`: "" )
   },[storyInfo])
 
   const handleChange = (e) => {
@@ -37,28 +37,53 @@ const OurStory = () => {
     Object.entries(otherValues).forEach(([field , value])=>{
       formData.append(field ,value)
     })
-    const id  = storyInfo?._id 
-    await updateStory({id,formData}).then((res)=>{
-      if(res?.data?.success){
-        Swal.fire({
-            text:res?.data?.message,
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(() => {
-            refetch();  
-          })
-    }else{
-        Swal.fire({
-            title: "Oops",
-            text: res?.error?.data?.message,
-            icon: "error",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-      
-    }
-    })
+    const id  = storyInfo?._id  
+ if(id){
+   
+   await updateStory({id,formData}).then((res)=>{
+     if(res?.data?.success){
+       Swal.fire({
+           text:res?.data?.message,
+           icon: "success",
+           showConfirmButton: false,
+           timer: 1500,
+         }).then(() => {
+           refetch();  
+         })
+   }else{
+       Swal.fire({
+           title: "Oops",
+           text: res?.error?.data?.message,
+           icon: "error",
+           timer: 1500,
+           showConfirmButton: false,
+         });
+     
+   }
+   })
+ }else{
+  await createStory(formData).then((res)=>{
+    if(res?.data?.success){
+      Swal.fire({
+          text:res?.data?.message,
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          refetch();  
+        })
+  }else{
+      Swal.fire({
+          title: "Oops",
+          text: res?.error?.data?.message,
+          icon: "error",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+    
+  }
+  })
+ }
   }
 
   return (

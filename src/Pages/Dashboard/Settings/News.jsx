@@ -92,7 +92,7 @@ if(res?.data?.success){
               gap: 12,
             }}
           >
-          <img src={img} height={140} width={140} />
+          <img src={img} height={140} width={140} className="rounded-lg" />
             <p>{record?.name}</p>
           </div>
         );

@@ -3,7 +3,8 @@ import React from "react";
 import user from "../../assets/user.png";
 import { FaDotCircle } from "react-icons/fa";
 import { FaRegClock } from "react-icons/fa6";
-const TransactionsModal = ({ open, setOpen }) => {
+const TransactionsModal = ({ open, setOpen, modalData }) => {
+  console.log(modalData);
   return (
     <div>
       <Modal
@@ -16,30 +17,30 @@ const TransactionsModal = ({ open, setOpen }) => {
         <div className="px-7 py-8">
           <p className=" py-2 font-medium text-lg text-[#00809E] ">
             {" "}
-            Transection Deatails
+            Transaction Details
           </p>
           <div className=" flex items-center justify-between   ">
             {/* user  */}
             <div>
               <p className="text-[16px] font-medium pb-2 text-black">User</p>
               <img
-                src={user}
+                src={modalData?.user?.img}
                 alt=""
                 className=" w-20 h-20 rounded-full mb-2 "
               />
               <p className=" text-[18px] font-medium text-[#FFAC8F] mb-1">
                 {" "}
-                Chris Hemsworth
+              {modalData?.user?.name}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
-                mahmud@gmail.com
+              {modalData?.user?.email}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
                 {" "}
-                76/4 R no. 60/1 Rue des Saints-Paris, 75005 Paris
+                {modalData?.user?.location}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
-                +099999897984754{" "}
+              {modalData?.user?.phone}
               </p>
             </div>
             {/* host  */}
@@ -52,17 +53,17 @@ const TransactionsModal = ({ open, setOpen }) => {
               />
               <p className=" text-[18px] font-medium text-[#734D2C] mb-1">
                 {" "}
-                Christopher Nolan
+                {modalData?.host?.name}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
-                mahmud@gmail.com
+              {modalData?.host?.email}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
                 {" "}
-                76/4 R no. 60/1 Rue des Saints-Paris, 75005 Paris
+                {modalData?.host?.location}
               </p>
               <p className="text-[14px] text-[#636363] pb-1">
-                +099999897984754{" "}
+              {modalData?.host?.phone}
               </p>
             </div>
           </div>
@@ -78,24 +79,24 @@ const TransactionsModal = ({ open, setOpen }) => {
               <span>
                 <FaDotCircle />{" "}
               </span>{" "}
-              <span>Completed</span>
+              <span>{modalData?.status}</span>
             </p>
 
             <p> </p>
           </div>
-          <p className=" text-[#676F62] py-1 text-[16px]">#132547964</p>
+          <p className=" text-[#676F62] py-1 text-[16px]">{modalData?.txtId}</p>
 
           <div className=" flex items-center justify-between w-full px-1">
             <p className=" font-medium text-[14px] text-black w-1/2 ">
               {" "}
-              10 may, 2024
+              Booking Date
             </p>
 
-            <p className="flex items-center justify-end  text-red-500 font-medium text-[14px] w-1/2 text-end ">
+            <p className="flex items-center justify-end  gap-1 text-red-500 font-medium text-[14px] w-1/2 text-end ">
               <span>
                 <FaRegClock />{" "}
               </span>{" "}
-              <span>10 may, 2024-10:00 Am</span>
+              <span>{modalData?.date}</span>
             </p>
           </div>
           <p className=" my-4 border-b border-[#FFAC8F]"></p>
@@ -103,19 +104,20 @@ const TransactionsModal = ({ open, setOpen }) => {
           <div className=" flex items-center justify-between w-full px-1 text-[#676F62]">
             <p className=" font-medium text-[14px]  w-1/2 ">
               {" "}
-              2 Bedroom Apartment
+              Price
             </p>
-            <p className=" font-medium text-[14px] w-1/2 text-end ">$240</p>
+            <p className=" font-medium text-[14px] w-1/2 text-end ">${modalData?.price}</p>
           </div>
           <p className="  border-b border-[#FFAC8F] my-4"></p>
           <div className=" flex items-center justify-between w-full px-1 text-[#734D2C] pb-2">
-            <p className=" font-medium text-[14px]  w-1/2 "> Total</p>
-            <p className=" font-medium text-[14px] w-1/2 text-end ">$240</p>
+            <p className=" font-medium text-[14px]  w-1/2 "> User  Payment</p>
+            <p className=" font-medium text-[14px] w-1/2 text-end ">${modalData?.payment}</p>
           </div>
 
           <div className=" flex items-center justify-between w-full px-1 text-[#00B047]">
             <p className=" font-medium text-[14px]  w-1/2 "> Host earning</p>
-            <p className=" font-medium text-[14px] w-1/2 text-end ">$200</p>
+            <p className=" font-medium text-[14px] w-1/2 text-end ">${modalData?.hostFee
+            }</p>
           </div>
         </div>
       </Modal>

@@ -26,7 +26,8 @@ const navigate = useNavigate()
       name: value?.createdBy?.fullName,
       img: value?.createdBy?.avatar?.startsWith("https") ?  value?.createdBy?.avatar : `${imageUrl}${value?.createdBy?.avatar}` ,
     },
-    email: value?.createdBy?.email,
+    email: value?.createdBy?.email, 
+    contact:value?.createdBy?.phoneNumber
   }))
 
 
@@ -56,7 +57,7 @@ const navigate = useNavigate()
               gap: 12,
             }}
           > 
-          <img src={user?.img} height={48} width={48} />
+          <img src={user?.img} style={{borderRadius:"100%" , height:40 , width:40 , objectFit:"cover" }} />
             <p
               style={{
                 letterSpacing: 0.4,

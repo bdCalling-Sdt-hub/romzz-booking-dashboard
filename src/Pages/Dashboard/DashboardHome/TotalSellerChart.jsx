@@ -12,102 +12,23 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useGetUsersChartQuery } from "../../../redux/apislices/DashboardSlices";
 
-const TotalSellerChart = () => {
-  const data = [
-    {
-      name: "Jan",
-      uv: 4000,
-      pv: 2400,
-      tv: "12k",
-      amt: 10,
-    },
-    {
-      name: "Feb",
-      uv: 3000,
-      pv: 1398,
-      tv: 1200,
-      amt: 20,
-    },
-    {
-      name: "Mar",
-      uv: 2000,
-      pv: 9800,
-      tv: 1200,
-      amt: 30,
-    },
-    {
-      name: "Apr",
-      uv: 2780,
-      pv: 3908,
-      tv: 1200,
-      amt: 40,
-    },
-    {
-      name: "May",
-      uv: 1890,
-      pv: 4800,
-      tv: 1200,
-      amt: 50,
-    },
-    {
-      name: "Jun",
-      uv: 2390,
-      pv: 3800,
-      tv: 1200,
-      amt: 60,
-    },
-    {
-      name: "Jul",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 70,
-    },
-    {
-      name: "Aug",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 80,
-    },
-    {
-      name: "Sep",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 90,
-    },
-    {
-      name: "Oct",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 100,
-    },
-    {
-      name: "Nov",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 110,
-    },
-    {
-      name: "Dec",
-      uv: 3490,
-      pv: 4300,
-      tv: 1200,
-      amt: 120,
-    },
-  ];
-
+const TotalSellerChart = () => { 
   const [year, setYear] = useState(2024);
+  const {data:Users} = useGetUsersChartQuery(year)  
+  const usersData = Users?.data
+  console.log(year);  
 
-  const items = [
-    {
-      label: 2023,
-      key: "2023",
-    },
+  const data = usersData?.map((value)=>({
+    name: (value?.month).slice(0,3),
+    pv: value?.totalUsers,
+  }))
+
+
+
+
+const items = [
     {
       label: 2024,
       key: "2024",
@@ -120,28 +41,26 @@ const TotalSellerChart = () => {
       label: 2026,
       key: "2026",
     },
+    {
+      label: 2027,
+      key: "2027",
+    },
+    {
+      label: 2028,
+      key: "2028",
+    },
+    {
+      label: 2029,
+      key: "2029",
+    },
+    {
+      label: 2030,
+      key: "2030",
+    },
   ];
-
   const onClick = ({ key }) => {
     setYear(key);
   };
-
-  /* useEffect(() => {
-    if(year !== 2024){
-      window.history.pushState(null, "", `?year=${year}`);
-    }
-  }, [year]);
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const yearParam = searchParams.get('year');
-    if (yearParam) {
-      const parsedYear = parseInt(yearParam, 10);
-      setYear(parsedYear);
-    } else {
-      window.location.reload();
-    }
-  }, []); */
 
   return (
     <div
@@ -187,7 +106,7 @@ const TotalSellerChart = () => {
           </p>
         </Dropdown>
       </div>
-      <ResponsiveContainer width={"100%"} height={300}>
+      <ResponsiveContainer width={"100%"} height={350}>
         <BarChart data={data} barGap={100}>
           <CartesianGrid horizontal vertical={false} />
           <XAxis

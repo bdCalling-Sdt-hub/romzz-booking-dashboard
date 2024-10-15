@@ -262,7 +262,7 @@ const AdminProfile = () => {
                   
                   <Form.Item name="fullName" label={<p className=" text-[#636363] text-[14px] font-[500] py-1 ">  User Name </p>}> 
                   <Input
-                    placeholder="Admin Marie"
+                  
                     style={{
                       padding: "10px",
                       color: "#818181",
@@ -279,7 +279,7 @@ const AdminProfile = () => {
                 
                   <Form.Item name="email" label={<p className=" text-[#636363] text-[14px] font-[500] py-1 ">  User Email </p>}> 
                   <Input
-                    placeholder="Camille@gmail.com"
+                  
                     style={{
                       padding: "10px",
                       color: "#818181",

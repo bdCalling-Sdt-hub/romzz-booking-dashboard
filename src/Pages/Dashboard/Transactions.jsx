@@ -1,129 +1,46 @@
 import { useState } from "react";
 import { DatePicker, Input, Select, Table } from "antd";
-import Logo from "../../assets/img.png";
 import { FiSearch } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import TransactionsModal from "../../Components/Dashboard/TransactionsModal";
+import { useGetTransactionsQuery } from "../../redux/apislices/DashboardSlices";
+import moment from "moment";
+import { imageUrl } from "../../redux/api/apiSlice";
 
-const data = [
-  {
-    key: "#1239",
-
-    user: {
-      name: "Mr. Mahmud",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1238",
-    user: {
-      name: "Lily",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Waiting",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1237",
-    user: {
-      name: "Kathry",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1236",
-    user: {
-      name: "Priscilla",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1235",
-    user: {
-      name: "Claire",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Waiting",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1234",
-    user: {
-      name: "Irmar",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Waiting",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1233",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1233",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1233",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Waiting",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-  {
-    key: "#1233",
-    user: {
-      name: "Gloria",
-      img: <img src={Logo} height={48} width={48} />,
-    },
-    status: "Published",
-    date: "09 Dec 2024",
-    price: "$290",
-    payment: "$270",
-  },
-];
 const Transactions = () => {
   const [page, setPage] = useState(
     new URLSearchParams(window.location.search).get("page") || 1
-  );
-  const [open, setOpen] = useState(false);
+  );  
+  const [searchValue , setSearchValue] = useState("")
+  const [status , setStatus] = useState()
+  const [open, setOpen] = useState(false);  
+  const [modalData , setModalData] = useState(null)
+  const {data:transactions} = useGetTransactionsQuery({page:page, searchTerm:searchValue , status:status})  
+ 
+  const data = transactions?.data?.result?.map((value , index)=>({
+    key: index+1,
+    user: {
+      name:value?.userId?.fullName,
+      img: value?.userId?.avatar?.startsWith("https") ?  value?.userId?.avatar : `${imageUrl}${value?.userId?.avatar}`,
+    location:value?.userId?.permanentLocation?.address , 
+    email:value?.userId?.email , 
+    phone:value?.userId?.phoneNumber
+    }, 
+    host: {
+      name:value?.propertyId?.createdBy?.fullName,
+      img: value?.propertyId?.createdBy?.avatar?.startsWith("https") ?  value?.propertyId?.createdBy?.avatar : `${imageUrl}${value?.propertyId?.createdBy?.avatar}`,
+    location:value?.propertyId?.createdBy?.permanentLocation?.address , 
+    email:value?.propertyId?.createdBy?.email , 
+    phone:value?.propertyId?.createdBy?.phoneNumber
+    },  
+    txtId: value?.trxId ,
+    hostFee: value?.adminFee ,
+    status: value?.status ,
+    date: moment(value?.createdAt).format("d MMM YYYY"),
+    price: value?.payoutAmount,
+    payment: value?.totalAmount, 
 
+  }))
   const columns = [
     {
       title: "S.No",
@@ -143,7 +60,7 @@ const Transactions = () => {
               gap: 12,
             }}
           >
-            <p> {user?.img} </p>
+            <p> <img src={user?.img} height={48} width={48} style={{borderRadius:"10px"}} />  </p>
 
             <p
               style={{
@@ -170,7 +87,7 @@ const Transactions = () => {
       key: "price",
     },
     {
-      title: "use  payment",
+      title: "User  Payment",
       dataIndex: "payment",
       key: "payment",
     },
@@ -205,7 +122,7 @@ const Transactions = () => {
           }}
         >
           <button
-            onClick={() => setOpen(true)}
+            onClick={() => {setOpen(true) , setModalData(record)}}
             style={{
               cursor: "pointer",
               border: "none",
@@ -217,7 +134,16 @@ const Transactions = () => {
         </div>
       ),
     },
-  ];
+  ]; 
+
+  const handleSearch =(e)=>{
+    const value =e.target.value 
+    setSearchValue(value)
+  } 
+
+  const handleStatusChange = (value) =>{ 
+    setStatus(value)
+  }
 
   const handlePageChange = (page) => {
     setPage(page);
@@ -229,12 +155,12 @@ const Transactions = () => {
   //   dropdown data
   const items = [
     {
-      label: "Published",
-      value: "Published",
+      label: "Confirmed",
+      value: "confirmed",
     },
     {
-      label: "Waiting",
-      value: "Waiting",
+      label: "Canceled",
+      value: "canceled",
     },
   ];
 
@@ -281,7 +207,8 @@ const Transactions = () => {
                   height: "100%",
                   fontSize: "14px",
                 }}
-                size="middle"
+                size="middle" 
+                onChange={handleSearch}
               />
             </div>
 
@@ -291,10 +218,10 @@ const Transactions = () => {
                 width: 150,
                 height: 40,
               }}
-              //   onChange={handleChange}
+                onChange={handleStatusChange}
               options={items}
             />
-            <DatePicker style={{ height: "40px" }} />
+
           </div>
         </div>
         <div>
@@ -305,11 +232,7 @@ const Transactions = () => {
               pageSize: 10,
               defaultCurrent: parseInt(page),
               onChange: handlePageChange,
-              total: 15,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} out of ${total}`,
-              defaultPageSize: 20,
-              // defaultCurrent: 1,
+              total: transactions?.data?.meta?.total,
               style: {
                 marginBottom: 20,
                 marginLeft: 20,
@@ -323,7 +246,7 @@ const Transactions = () => {
           />
         </div>
       </div>
-      <TransactionsModal open={open} setOpen={setOpen} />
+      <TransactionsModal open={open} setOpen={setOpen} modalData={modalData} />
     </div>
   );
 };

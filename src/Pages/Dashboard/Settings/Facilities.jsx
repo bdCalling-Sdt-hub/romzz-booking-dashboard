@@ -77,7 +77,7 @@ if(res?.data?.success){
       dataIndex: "icon",
       key: "icon", 
       render:(icon)=>(
-        <img src={icon} alt="" style={{objectFit:"contain"}} />
+        <img src={icon} alt="" style={{objectFit:"contain" , width:"40px" , height:"40px" , borderRadius:"10px"}} />
       )
     },
     {

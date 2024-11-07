@@ -6,8 +6,9 @@ import { setToLocalStorage } from "../../Util/local-storage";
 import Swal from "sweetalert2";
 import { useLoginMutation } from "../../redux/apislices/AuthSlices";
 const Login = () => { 
-  const [login , {isSuccess , isError, error ,data}] = useLoginMutation()   
-  console.log(data);
+  const [login , {isSuccess , isError, error ,data}] = useLoginMutation()
+
+  console.log(error)
   const navigate = useNavigate()
 
   useEffect(() => {

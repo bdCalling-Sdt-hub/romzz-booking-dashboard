@@ -1,25 +1,16 @@
 import { Layout } from "antd";
 import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation,  } from "react-router-dom";
 import Logo from "../../assets/logo.png";
-import user from "../../assets/user.png";
-import {
-  FaBuildingUser,
-  FaHouseMedical,
-  FaRegAddressCard,
-  FaRegNewspaper,
-} from "react-icons/fa6";
+import { FaRegNewspaper } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
 import { MdOutlineDashboard, MdOutlineSubscriptions, MdOutlineSupportAgent } from "react-icons/md";
-import { BiBuildings } from "react-icons/bi";
-import { GoBell } from "react-icons/go";
-import { TbCategoryPlus, TbPackages } from "react-icons/tb";
+import { TbPackages } from "react-icons/tb";
 import { FiUserPlus, FiLogOut, FiUsers } from "react-icons/fi";
-import { VscBook, VscFeedback } from "react-icons/vsc";
 import { RiNotification2Line } from "react-icons/ri";
 import { AiOutlineTransaction } from "react-icons/ai";
 
-import { BsBuildingAdd, BsFillBuildingsFill } from "react-icons/bs";
+import { BsBuildingAdd } from "react-icons/bs";
 import { imageUrl } from "../../redux/api/apiSlice";
 import { useGetProfileQuery } from "../../redux/apislices/AuthSlices";
 import { useGetNotificationQuery, useUpdateReadNotificationMutation } from "../../redux/apislices/DashboardSlices";
@@ -28,24 +19,32 @@ const { Header, Sider, Content } = Layout;
 
 const Dashboard = () => {
   const [setting, setSetting] = useState(false);
-  const { pathname } = useLocation(); 
-  const {data:Notifications , refetch} = useGetNotificationQuery() 
-  const totalNotification = Notifications?.data?.result?.filter(item => item?.isSeen === false).length 
-const [updateReadNotification , {isSuccess}] = useUpdateReadNotificationMutation()
-  const {data:AdminInfo} = useGetProfileQuery()   
-  console.log(AdminInfo);
-  const user  = AdminInfo?.data  
-  const src = user?.avatar?.startsWith("https") ? user?.avatar : `${imageUrl}${user?.avatar}` 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { data: Notifications, refetch } = useGetNotificationQuery()
+  const totalNotification = Notifications?.data?.result?.filter(item => item?.isSeen === false).length
+  const [updateReadNotification, { isSuccess }] = useUpdateReadNotificationMutation();
+  
+  const { data: AdminInfo } = useGetProfileQuery({
+    onError: (error) => {
+      if (error.status === 401) {
+        navigate('/login');
+      }
+    }
+  })
 
- const handleUpdateNotification =async() =>{
- await updateReadNotification()
- } 
+  const user = AdminInfo?.data
+  const src = user?.avatar?.startsWith("https") ? user?.avatar : `${imageUrl}${user?.avatar}`
 
- useEffect(()=>{
-  if(isSuccess){
-    refetch()
+  const handleUpdateNotification = async () => {
+    await updateReadNotification()
   }
- },[isSuccess , refetch]) 
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch()
+    }
+  }, [isSuccess, refetch])
 
 
   const linkItems = [
@@ -89,7 +88,7 @@ const [updateReadNotification , {isSuccess}] = useUpdateReadNotificationMutation
     {
       title: "Subscribers",
       path: "/subscribers",
-      icon: <MdOutlineSubscriptions  size={24} />,
+      icon: <MdOutlineSubscriptions size={24} />,
     },
     {
       title: "Add admin",
@@ -356,9 +355,9 @@ const [updateReadNotification , {isSuccess}] = useUpdateReadNotificationMutation
                   alignItems: "center",
                   borderRadius: "50%",
                   position: "relative",
-                }} 
+                }}
 
-                onClick={()=>handleUpdateNotification()}
+                onClick={() => handleUpdateNotification()}
               >
                 <RiNotification2Line color="black" size={24} />
 
@@ -414,13 +413,13 @@ const [updateReadNotification , {isSuccess}] = useUpdateReadNotificationMutation
                   width: 200,
                 }}
               >
-               {user?.fullName}
+                {user?.fullName}
               </h2>
             </Link>
           </div>
         </Header>
 
-        <Content 
+        <Content
           style={{
             marginTop: "78px",
             // marginBottom: "20px",

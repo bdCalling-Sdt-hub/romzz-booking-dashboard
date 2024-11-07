@@ -16,7 +16,6 @@ const DailyOverviewChart = () => {
   const [year, setYear] = useState(2024); 
   const {data:revenues} = useGetRevenueChartQuery(year)  
   const revenuesData = revenues?.data
-  console.log(year); 
 
   const data = revenuesData?.map((value)=>({
     name: (value?.month).slice(0,3),

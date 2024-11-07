@@ -3,19 +3,21 @@ import { Button, Pagination } from "antd";
 import { useGetNotificationQuery, useUpdateReadAllNotificationMutation } from "../../redux/apislices/DashboardSlices";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-const Notification = () => {  
+const Notification = () => {
   const [page, setPage] = useState(1)
-  const {data:notifications , refetch} = useGetNotificationQuery(page)   
-  const [updateReadAllNotification , {isSuccess}] = useUpdateReadAllNotificationMutation()
+  const { data: notifications, refetch } = useGetNotificationQuery(page);
+  console.log(notifications);
+  const [updateReadAllNotification, { isSuccess }] = useUpdateReadAllNotificationMutation()
 
-  useEffect(()=>{
-    if(isSuccess){
+  useEffect(() => {
+    if (isSuccess) {
       refetch()
     }
-  },[isSuccess , refetch])
+  }, [isSuccess, refetch])
 
-  const handleReadAll = async()=>{
+  const handleReadAll = async () => {
     await updateReadAllNotification()
   }
   return (
@@ -46,8 +48,8 @@ const Notification = () => {
             </h3>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Button 
-            onClick={()=>handleReadAll()}
+            <Button
+              onClick={() => handleReadAll()}
               style={{
                 height: "40px",
 
@@ -67,53 +69,55 @@ const Notification = () => {
         </div>
         <div>
           {
-            notifications?.data?.result?.map((value , index ) =>  
-          <div key={index} className={ ` ${value?.isRead ? "bg-white" : "bg-[#e6f2f5]"  } shadow-lg p-4 rounded-lg  mb-2   `} > 
-              <div 
-          className=" flex  justify-between "
-          > 
-            <p
-              style={{
-                display: "flex",
-                gap: "40px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 16,
-                  fontWeight: "400",
-                  color: "#555555",
-                }}
-              >
-             {value?.message}
-              </span>
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: "400",
-                  color: "#A7A7A7",
-                }}
-              >
-              {moment(value?.createdAt).format('D MMM YYYY , hh:mm a')}
-              </span>
-            </p> 
-     
-          </div>
-          </div>
+            notifications?.data?.result?.map((value, index) =>
+              <Link key={index} to={`/${value?.url}`}>
+                <div  className={` ${value?.isRead ? "bg-white" : "bg-[#e6f2f5]"} shadow-lg p-4 rounded-lg  mb-2   `} >
+                  <div
+                    className=" flex  justify-between "
+                  >
+                    <p
+                      style={{
+                        display: "flex",
+                        gap: "40px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "400",
+                          color: "#555555",
+                        }}
+                      >
+                        {value?.message}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "400",
+                          color: "#A7A7A7",
+                        }}
+                      >
+                        {moment(value?.createdAt).format('D MMM YYYY , hh:mm a')}
+                      </span>
+                    </p>
+
+                  </div>
+                </div>
+              </Link>
             )
           }
-           
-     
+
+
         </div>
-        <div className="text-center py-10"> 
+        <div className="text-center py-10">
           {
-          notifications?.data?.result?.length >= 8 ? <Pagination   align="end"
-          defaultCurrent={page} 
-          total={notifications?.data?.meta?.total} 
-          onChange={(page)=>setPage(page)} /> 
-          : ""
+            notifications?.data?.result?.length >= 8 ? <Pagination align="end"
+              defaultCurrent={page}
+              total={notifications?.data?.meta?.total}
+              onChange={(page) => setPage(page)} />
+              : ""
           }
-          
+
         </div>
       </div>
     </div>

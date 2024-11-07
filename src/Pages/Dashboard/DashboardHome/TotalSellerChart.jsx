@@ -17,8 +17,7 @@ import { useGetUsersChartQuery } from "../../../redux/apislices/DashboardSlices"
 const TotalSellerChart = () => { 
   const [year, setYear] = useState(2024);
   const {data:Users} = useGetUsersChartQuery(year)  
-  const usersData = Users?.data
-  console.log(year);  
+const usersData = Users?.data
 
   const data = usersData?.map((value)=>({
     name: (value?.month).slice(0,3),

@@ -8,11 +8,11 @@ const authSlice = romzzApi.injectEndpoints({
 
         login:builder.mutation({
             query:(value)=>{  
-                console.log("res" ,value);
                 return{ 
                     url:"/auth/login" ,
                     method:"POST" ,
-                    body: value
+                    body: value,
+                    credentials: 'include',
                 }}}) , 
 
             forgetPass:builder.mutation({

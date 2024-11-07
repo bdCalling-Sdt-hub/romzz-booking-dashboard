@@ -11,7 +11,6 @@ import { useGetDashboardCardQuery } from "../../../redux/apislices/DashboardSlic
 function DashboardHome() { 
   const {data:cardsValue} = useGetDashboardCardQuery() 
   const cardValue = cardsValue?.data
-  console.log(cardValue); 
 
 
   const data = [

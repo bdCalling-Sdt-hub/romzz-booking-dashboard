@@ -21,12 +21,12 @@ const Support = () => {
   const conversationList = conversation?.data 
   const {data:messages} = useGetMessagesQuery(personId)  
   const [sendMessage] = useSendMessageMutation()  
- const userMessages = messages?.data 
+ const userMessages = messages?.data?.messages; 
  const [messageList , setMessageList] = useState([])  
  const {socket} = useContext(UserContext)   
  const scrollRef  = useRef() 
- const adminId = profile?.data?._id   
- const [form] = Form.useForm()
+ const adminId = profile?.data?._id;
+ const [form] = Form.useForm();
 
  const handleChangeImage =(e)=>{
    const file =  e.target.files?.[0] 
@@ -34,6 +34,8 @@ const Support = () => {
     setImage(file)
    }
  } 
+
+ console.log(messageList)
 
  const ConversationSearch =(e)=>{
   const search = e.target.value 
@@ -52,11 +54,9 @@ const Support = () => {
 }, [messageList]);  
 
 
-const handleConnection = useCallback(
-  ({data})=>{
-    setMessageList((prev)=>[...prev , data])
-  },[]
-) 
+  const handleConnection = useCallback(({data}) => {
+    setMessageList((prev)=> [...prev, data] );
+  }, [messageList]);
 
 useEffect(() => {
   const event = "messageReceived";
@@ -85,7 +85,6 @@ useEffect(() => {
     formData.append("content",values?.text)
     
     await sendMessage({personId , formData}).then((res)=>{
-      console.log(res);
       if(res?.data?.success){ 
         form.resetFields();
         setText(null)
@@ -142,7 +141,11 @@ useEffect(() => {
                 }`}
               >
                 <div className="flex items-center gap-2"> 
-                  <img src={`${imageUrl}${value?.createdBy?.avatar}`} alt=""  style={{height:40 , width:40 , borderRadius:"100%"}}/>
+                  <img 
+                    src={ value?.createdBy?.avatar?.startsWith("https") ? value?.createdBy?.avatar : `${imageUrl}${value?.createdBy?.avatar}`} 
+                    alt=""  
+                    style={{height:40 , width:40 , borderRadius:"100%"}}
+                  />
                   <div className="flex-col gap-1">
                     <p className="text-[#12354E] font-medium text-[16px] ">
                       {" "}
@@ -162,7 +165,9 @@ useEffect(() => {
             <div className="fixed overflow-hidden h-[80vh] w-[110vh]">
               {/* header   */}
               <div className=" flex items-center gap-3 py-2 px-3 "> 
-                <img src={`${imageUrl}${person?.createdBy?.avatar}`} alt=""  style={{height:45 , width:45 , borderRadius:"100%"}} />
+                <img src={ person?.createdBy?.avatar?.startsWith("https") ? person?.createdBy?.avatar :  `${imageUrl}${person?.createdBy?.avatar}`} 
+                alt=""  
+                style={{height:45 , width:45 , borderRadius:"100%"}} />
                 <p className=" text-[20px]">{person?.createdBy?.fullName} </p>
               </div>
 
@@ -173,7 +178,7 @@ useEffect(() => {
                     <div
                       key={index}
                       className={` flex mb-2 w-full  ${
-                        adminId == value?.senderId
+                        adminId === value?.senderId._id
                           ? "items-end justify-end w-1/2"
                           : "items-start justify-start w-1/2"
                       } `}
@@ -181,9 +186,9 @@ useEffect(() => {
                     <div> 
                     {value?.attachments.length > 0 && (
                       <div className={` flex  ${
-                        adminId === value?.senderId
-                          ? "items-end justify-end w-full"
-                          : "items-start justify-start w-full"
+                        adminId === value?.senderId._id
+                          ? "items-start justify-start w-full"
+                          : "items-end justify-end w-full "
                       } `}>
                         {value?.attachments?.map(
                           (images, index) => (
@@ -200,7 +205,7 @@ useEffect(() => {
 
                       <div
                         className={` w-full px-4 py-2 flex-col gap-1 ${
-                          adminId == value?.senderId
+                          adminId === value?.senderId._id
                             ? " bg-white rounded-t-xl rounded-bl-xl"
                             : " bg-[#E5E5E5]  rounded-t-xl rounded-br-xl"
                         }`}

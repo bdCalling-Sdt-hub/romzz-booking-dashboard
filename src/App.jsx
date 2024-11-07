@@ -26,7 +26,7 @@ import Support from "./Pages/Dashboard/Support";
 import Facilities from "./Pages/Dashboard/Settings/Facilities";
 import Packages from "./Pages/Dashboard/Packages";
 import Subscribers from "./Pages/Dashboard/Subscribers"; 
-import User from "./Pages/Dashboard/user";
+import User from "./Pages/Dashboard/User";
 
 
 function App() {

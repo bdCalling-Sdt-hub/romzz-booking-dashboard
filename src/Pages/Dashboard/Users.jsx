@@ -97,7 +97,7 @@ const Users = () => {
       title: "S.No",
       dataIndex: "key",
       key: "key",
-      render: (_, record, index) => <p>{((page - 1) * pagePerSize) + record?.key}</p>
+      render: (_, record, index) => <p>{((page - 1) * pagePerSize) + (index + 1)}</p>
     },
     {
       title: "User",
@@ -172,6 +172,14 @@ const Users = () => {
     setSearchValue(value)
   }
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (e) => {
+      setSelectedRowKeys(e);
+    }
+  };
+
 
 
   return (
@@ -208,7 +216,16 @@ const Users = () => {
                 height: "40px",
                 borderRadius: "8px",
               }}
+
+              className="flex items-center gap-2"
             >
+              <a
+                href={`mailto:${selectedRowKeys}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <CiMail size={22} className="cursor-pointer" />
+              </a>
               <Input
                 placeholder="Search Using Email & Location"
                 prefix={<FiSearch size={14} color="#868FA0" />}
@@ -226,7 +243,8 @@ const Users = () => {
         <div>
           <Table
             columns={columns}
-            dataSource={data}
+            dataSource={data?.map((data, index) => ({ ...data, key: data?.email }))}
+            rowSelection={rowSelection}
             pagination={{
               current: parseInt(page),
               total: users?.data?.meta?.total,

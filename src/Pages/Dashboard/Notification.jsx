@@ -70,7 +70,7 @@ const Notification = () => {
         <div>
           {
             notifications?.data?.result?.map((value, index) =>
-              <Link key={index} to={`/${value?.url}`}>
+              <Link key={index} to={`${value?.url}`}>
                 <div  className={` ${value?.isRead ? "bg-white" : "bg-[#e6f2f5]"} shadow-lg p-4 rounded-lg  mb-2   `} >
                   <div
                     className=" flex  justify-between "

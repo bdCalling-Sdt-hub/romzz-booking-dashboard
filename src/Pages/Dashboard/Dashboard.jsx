@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [setting, setSetting] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  console.log(pathname.startsWith("/user"))
   const { data: Notifications, refetch } = useGetNotificationQuery()
   const totalNotification = Notifications?.data?.result?.filter(item => item?.isSeen === false).length
   const [updateReadNotification, { isSuccess }] = useUpdateReadNotificationMutation();
@@ -261,10 +262,8 @@ const Dashboard = () => {
                             }}
                           >
                             <div
-                              // className="text-center"
                               style={{
                                 fontSize: "13px",
-
                                 background:
                                   optionItem.path === pathname
                                     ? "#8AC5D2"
@@ -290,13 +289,21 @@ const Dashboard = () => {
               ) : (
                 <Link
                   to={item.path}
+                  className="bg-red-500"
                   style={{
                     display: "flex",
-                    color: item.path === pathname ? "white" : "Black",
+                    color: item.path === pathname ? "white" : "black" ,
+                    color: (pathname.startsWith("/user") && item.path === "/users") || item.path === pathname
+                    ? "white"
+                    : "black",
                     alignItems: "flex-end",
                     margin: "auto  0 auto 0",
                     gap: "14px",
-                    background: item.path === pathname ? "#00809E" : "none",
+                    background:
+                    (pathname.startsWith("/user") && item.path === "/users") || item.path === pathname
+                      ? "#00809E"
+                      : "none",
+                  
                     width: "100%",
                     padding: "9px 10px 9px 15px",
                     borderRadius:

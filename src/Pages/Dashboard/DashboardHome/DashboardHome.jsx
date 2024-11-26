@@ -7,6 +7,7 @@ import { HiMiniUserGroup } from "react-icons/hi2";
 import { LuCalendarCheck2 } from "react-icons/lu";
 import { IoBarChartSharp } from "react-icons/io5";
 import { useGetDashboardCardQuery } from "../../../redux/apislices/DashboardSlices";
+import { Link } from "react-router-dom";
 
 function DashboardHome() { 
   const {data:cardsValue} = useGetDashboardCardQuery() 
@@ -28,6 +29,7 @@ function DashboardHome() {
     {
       name: "Total Revenue",
       count:  Math.round(cardValue?.totalRevenue),
+      link: "https://dashboard.stripe.com/test/balance/overview"
     }, 
 
     {
@@ -109,6 +111,10 @@ function DashboardHome() {
                   {item.count}
                 </p>
               </div>
+              {
+                item?.link &&
+                <Link target="_blank" className="block text-[#675dff]" to={item?.link}>Stripe</Link>
+              }
             </div>
           </div>
         ))}

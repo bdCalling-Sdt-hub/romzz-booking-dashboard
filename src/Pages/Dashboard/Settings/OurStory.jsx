@@ -13,8 +13,9 @@ const OurStory = () => {
   const [createStory] = useCreateStoryMutation()
   const [updateStory] = useUpdateStoryMutation()  
   const [form]= Form.useForm()  
-  const storyInfo = story?.data[0] 
-  console.log(story); 
+  const storyInfo = story?.data[0];
+
+  console.log(story);
 
   useEffect(()=>{
     form.setFieldsValue({title:storyInfo?.title , storyDetails:storyInfo?.storyDetails}) 

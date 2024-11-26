@@ -12,7 +12,6 @@ const authSlice = romzzApi.injectEndpoints({
                     url:"/auth/login" ,
                     method:"POST" ,
                     body: value,
-                    credentials: 'include',
                 }}}) , 
 
             forgetPass:builder.mutation({

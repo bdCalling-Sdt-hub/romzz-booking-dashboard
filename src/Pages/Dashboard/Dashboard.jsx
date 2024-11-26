@@ -292,21 +292,21 @@ const Dashboard = () => {
                   className="bg-red-500"
                   style={{
                     display: "flex",
-                    color: (pathname.startsWith("/user") && item.path === "/users") || item.path === pathname
+                    color: (pathname.startsWith("/user") && item.path === "/users") || (pathname.startsWith("/properties") && item.path === "/post-request") || item.path === pathname
                     ? "white"
                     : "black",
                     alignItems: "flex-end",
                     margin: "auto  0 auto 0",
                     gap: "14px",
                     background:
-                    (pathname.startsWith("/user") && item.path === "/users") || item.path === pathname
+                    (pathname.startsWith("/user") && item.path === "/users") || (pathname.startsWith("/properties") && item.path === "/post-request") || item.path === pathname
                       ? "#00809E"
                       : "none",
                   
                     width: "100%",
                     padding: "9px 10px 9px 15px",
                     borderRadius:
-                      item.path === pathname ? "50px 5px 5px 50px" : "none",
+                    (pathname.startsWith("/user") && item.path === "/users") || (pathname.startsWith("/properties") && item.path === "/post-request") || item.path === pathname ? "50px 5px 5px 50px" : "none",
                   }}
                 >
                   <div style={{ height: "22px" }}>{item.icon}</div>

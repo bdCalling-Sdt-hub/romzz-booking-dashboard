@@ -292,7 +292,6 @@ const Dashboard = () => {
                   className="bg-red-500"
                   style={{
                     display: "flex",
-                    color: item.path === pathname ? "white" : "black" ,
                     color: (pathname.startsWith("/user") && item.path === "/users") || item.path === pathname
                     ? "white"
                     : "black",
